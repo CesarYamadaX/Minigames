@@ -3,7 +3,7 @@
 Colección de minijuegos de navegador en HTML, CSS y JavaScript puros (sin dependencias ni build).
 
 - **Vuelo en la Cueva**: clic o toque para aletear entre estalactitas; el hueco se cierra con los puntos.
-- **Pong**: ratón o dedo contra una IA; la pelota acelera y gana el primero en llegar a 7.
+- **Pong**: un jugador; mueve la pala con el ratón o el dedo y devuelve la pelota contra el techo y las paredes. Cada golpe suma un punto y la acelera.
 - **Zorro Veloz**: clic o toque para saltar rocas y troncos; mantén pulsado para saltar más alto y haz clic en el aire para doble salto.
 
 Cada juego guarda tu récord en el navegador y corre a la misma velocidad en cualquier monitor.
