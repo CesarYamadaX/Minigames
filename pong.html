@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pong</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a href="index.html">← Menú</a>
+<canvas id="c" width="600" height="400" style="background:#111"></canvas>
+<p>W/S o flechas ↑/↓ para mover tu pala (izquierda)</p>
+<script>
+const c = document.getElementById('c'), g = c.getContext('2d');
+const W = c.width, H = c.height, PH = 70, PWd = 10;
+const keys = {};
+let py, ay, ball, ps = 0, as = 0;
+
+addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; if (e.key.startsWith('Arrow')) e.preventDefault(); });
+addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+function serve(dir) {
+  py = ay = H / 2 - PH / 2;
+  ball = { x: W / 2, y: H / 2, vx: 4 * dir, vy: (Math.random() - 0.5) * 6 };
+}
+
+function update() {
+  if (keys.w || keys.arrowup) py -= 6;
+  if (keys.s || keys.arrowdown) py += 6;
+  py = Math.max(0, Math.min(H - PH, py));
+  // IA simple: sigue la pelota con velocidad limitada
+  const target = ball.y - PH / 2;
+  ay += Math.max(-3.5, Math.min(3.5, target - ay));
+  ay = Math.max(0, Math.min(H - PH, ay));
+
+  ball.x += ball.vx; ball.y += ball.vy;
+  if (ball.y < 5 || ball.y > H - 5) ball.vy *= -1;
+  // palas: rebote y aceleración ligera
+  if (ball.vx < 0 && ball.x < 20 + PWd && ball.x > 20 && ball.y > py && ball.y < py + PH) {
+    ball.vx *= -1.08; ball.vy += (ball.y - (py + PH / 2)) * 0.1;
+  }
+  if (ball.vx > 0 && ball.x > W - 20 - PWd && ball.x < W - 20 && ball.y > ay && ball.y < ay + PH) {
+    ball.vx *= -1.08; ball.vy += (ball.y - (ay + PH / 2)) * 0.1;
+  }
+  if (ball.x < 0) { as++; serve(1); }
+  if (ball.x > W) { ps++; serve(-1); }
+}
+
+function draw() {
+  g.clearRect(0, 0, W, H);
+  g.fillStyle = '#fff';
+  g.fillRect(10, py, PWd, PH);
+  g.fillRect(W - 10 - PWd, ay, PWd, PH);
+  g.fillRect(ball.x - 5, ball.y - 5, 10, 10);
+  g.font = '32px sans-serif'; g.textAlign = 'center';
+  g.fillText(ps + '   ' + as, W / 2, 40);
+}
+
+function loop() { update(); draw(); requestAnimationFrame(loop); }
+serve(1); loop();
+</script>
+</body>
+</html>

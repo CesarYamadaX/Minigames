@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flappy Bird</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a href="index.html">← Menú</a>
+<canvas id="c" width="320" height="480"></canvas>
+<p>Espacio / clic / toque para saltar</p>
+<script>
+const c = document.getElementById('c'), g = c.getContext('2d');
+const W = c.width, H = c.height, GAP = 120, PW = 50;
+let bird, pipes, score, over, started, frame;
+
+function reset() {
+  bird = { y: H / 2, v: 0 };
+  pipes = []; score = 0; over = false; started = false; frame = 0;
+}
+
+function flap() {
+  if (over) return reset();
+  started = true;
+  bird.v = -6;
+}
+
+addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); flap(); } });
+c.addEventListener('pointerdown', flap);
+
+function update() {
+  if (!started || over) return;
+  bird.v += 0.35;
+  bird.y += bird.v;
+  if (frame++ % 90 === 0) pipes.push({ x: W, top: 60 + Math.random() * (H - GAP - 120), passed: false });
+  for (const p of pipes) {
+    p.x -= 2;
+    if (!p.passed && p.x + PW < 60) { p.passed = true; score++; }
+    if (60 + 12 > p.x && 60 - 12 < p.x + PW && (bird.y - 12 < p.top || bird.y + 12 > p.top + GAP)) over = true;
+  }
+  pipes = pipes.filter(p => p.x > -PW);
+  if (bird.y < 0 || bird.y > H) over = true;
+}
+
+function draw() {
+  g.clearRect(0, 0, W, H);
+  g.fillStyle = '#2e8b57';
+  for (const p of pipes) {
+    g.fillRect(p.x, 0, PW, p.top);
+    g.fillRect(p.x, p.top + GAP, PW, H);
+  }
+  g.fillStyle = '#ffd54f';
+  g.beginPath(); g.arc(60, bird.y, 12, 0, 7); g.fill();
+  g.fillStyle = '#000'; g.font = '28px sans-serif'; g.textAlign = 'center';
+  g.fillText(score, W / 2, 40);
+  if (!started) g.fillText('¡Salta para empezar!', W / 2, H / 2 + 60);
+  if (over) {
+    g.fillText('Game Over', W / 2, H / 2);
+    g.font = '16px sans-serif';
+    g.fillText('Salta para reiniciar', W / 2, H / 2 + 30);
+  }
+}
+
+function loop() { update(); draw(); requestAnimationFrame(loop); }
+reset(); loop();
+</script>
+</body>
+</html>
