@@ -9,9 +9,13 @@
 <body>
 <h1>Minijuegos</h1>
 <div class="menu">
-  <a class="card" href="flappy.html">🐦 Flappy Bird</a>
-  <a class="card" href="pong.html">🏓 Pong</a>
-  <a class="card" href="dino.html">🦖 Dino Runner</a>
+  <a class="card" href="cueva.html">🦇 Vuelo en la Cueva<small>Récord: <span id="cueva">0</span></small></a>
+  <a class="card" href="pong.html">🏓 Pong<small>Victorias: <span id="pong">0</span></small></a>
+  <a class="card" href="zorro.html">🦊 Zorro Veloz<small>Récord: <span id="zorro">0</span></small></a>
 </div>
+<script src="common.js"></script>
+<script>
+for (const k of ['cueva', 'pong', 'zorro']) document.getElementById(k).textContent = loadBest(k);
+</script>
 </body>
 </html>
