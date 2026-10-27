@@ -9,7 +9,7 @@
 <body>
 <a href="index.html">← Menú</a>
 <canvas id="c" width="600" height="200"></canvas>
-<p>Espacio / ↑ / toque para saltar. Mantén para saltar más alto; salta otra vez en el aire para doble salto.</p>
+<p>Clic o toque para saltar. Mantén pulsado para saltar más alto; vuelve a hacer clic en el aire para doble salto.</p>
 <script src="common.js"></script>
 <script>
 const c = document.getElementById('c'), g = c.getContext('2d');
@@ -29,10 +29,6 @@ function press() {
 }
 function release() { held = false; }
 
-addEventListener('keydown', e => {
-  if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); if (!e.repeat) press(); }
-});
-addEventListener('keyup', e => { if (e.code === 'Space' || e.code === 'ArrowUp') release(); });
 c.addEventListener('pointerdown', press);
 addEventListener('pointerup', release);
 addEventListener('pointercancel', release);

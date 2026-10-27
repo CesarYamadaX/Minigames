@@ -9,7 +9,7 @@
 <body>
 <a href="index.html">← Menú</a>
 <canvas id="c" width="320" height="480"></canvas>
-<p>Espacio / ↑ / clic / toque para aletear</p>
+<p>Clic o toque para aletear</p>
 <script src="common.js"></script>
 <script>
 const c = document.getElementById('c'), g = c.getContext('2d');
@@ -27,9 +27,6 @@ function flap() {
   bat.v = -6;
 }
 
-addEventListener('keydown', e => {
-  if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); if (!e.repeat) flap(); }
-});
 c.addEventListener('pointerdown', flap);
 
 function die() {
