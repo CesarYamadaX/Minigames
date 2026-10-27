@@ -25,22 +25,22 @@ function update() {
   frame++;
   if (over) { sub.y = Math.min(H - R, sub.y + 2); return; }
   // sigue al ratón con velocidad máxima limitada, para que haya que anticiparse
-  const dy = Math.max(-4, Math.min(4, (targetY - sub.y) * 0.15));
+  const dy = Math.max(-8, Math.min(8, (targetY - sub.y) * 0.25));
   sub.y = Math.max(R, Math.min(H - R, sub.y + dy));
-  sub.tilt = dy / 8;
+  sub.tilt = dy / 16;
   if (frame % 6 === 0) bubbles.push({ x: SX - 18, y: sub.y + 2, r: 2 + Math.random() * 2, life: 60 });
-  for (const b of bubbles) { b.x -= 1.5; b.y -= 0.8; b.life--; }
+  for (const b of bubbles) { b.x -= 3; b.y -= 0.8; b.life--; }
   bubbles = bubbles.filter(b => b.life > 0);
   if (!started) return;
 
   // huecos más estrechos con los puntos; desde 5 puntos empiezan a moverse
   const gap = Math.max(110, 150 - score * 2);
-  if (spawn++ % 80 === 0) cols.push({
+  if (spawn++ % 45 === 0) cols.push({
     x: W, top: 60 + Math.random() * (H - gap - 120), gap, passed: false,
-    drift: score >= 5 ? (Math.random() < 0.5 ? -1 : 1) * Math.min(2, 0.5 + score * 0.05) : 0,
+    drift: score >= 5 ? (Math.random() < 0.5 ? -1 : 1) * Math.min(3.5, 1 + score * 0.08) : 0,
   });
   for (const p of cols) {
-    p.x -= 2.2;
+    p.x -= 4.5;
     p.top += p.drift;
     if (p.top < 30 || p.top + p.gap > H - 30) p.drift *= -1;
     if (!p.passed && p.x + CW < SX) { p.passed = true; score++; }
