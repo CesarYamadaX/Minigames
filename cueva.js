@@ -83,8 +83,8 @@ function draw() {
   if (started) g.fillText(score, W / 2, 50);
   g.textAlign = 'right'; g.font = '14px system-ui, sans-serif';
   g.fillText('Récord ' + best, W - 10, 22);
-  if (!started) drawMessage(g, 'Vuelo en la Cueva', 'Aletea para empezar');
-  if (over) drawMessage(g, '¡Chocaste! ' + score + ' pts', 'Aletea para reiniciar');
+  if (!started) drawMessage(g, 'Vuelo en la Cueva', 'Haz clic para empezar');
+  if (over) drawMessage(g, '¡Chocaste! ' + score + ' pts', 'Haz clic para jugar otra vez');
 }
 
 reset(); startLoop(update, draw);

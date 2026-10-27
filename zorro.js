@@ -92,8 +92,8 @@ function draw() {
 
   g.fillStyle = '#4e342e'; g.font = '16px monospace'; g.textAlign = 'right';
   g.fillText('REC ' + String(best).padStart(5, '0') + '   ' + String(Math.floor(score)).padStart(5, '0'), W - 10, 24);
-  if (!started) drawMessage(g, 'Zorro Veloz', 'Salta para empezar');
-  if (over) drawMessage(g, '¡Tropezaste! ' + Math.floor(score) + ' pts', 'Salta para reiniciar');
+  if (!started) drawMessage(g, 'Zorro Veloz', 'Haz clic para empezar');
+  if (over) drawMessage(g, '¡Tropezaste! ' + Math.floor(score) + ' pts', 'Haz clic para jugar otra vez');
 }
 
 reset(); startLoop(update, draw);

@@ -52,7 +52,7 @@ function draw() {
   g.fillText(score, W / 2, 70);
   g.font = '14px system-ui, sans-serif'; g.fillStyle = '#888';
   g.fillText('Récord: ' + best, W / 2, 95);
-  if (over) drawMessage(g, '¡Se escapó! ' + score + ' golpes', 'Clic o toque para jugar otra vez');
+  if (over) drawMessage(g, '¡Se escapó! ' + score + ' golpes', 'Haz clic para jugar otra vez');
 }
 
 reset(); startLoop(update, draw);
