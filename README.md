@@ -18,11 +18,11 @@ Abre `index.html` en tu navegador y elige un juego. En cada uno, el enlace "← 
 | Archivo | Qué contiene |
 |---|---|
 | `index.html` | Menú principal con los récords |
-| `cueva.html` / `cueva.js` | Página y código de Vuelo en la Cueva |
-| `submarino.html` / `submarino.js` | Página y código de Submarino |
-| `zorro.html` / `zorro.js` | Página y código de Zorro Veloz |
-| `pong.html` / `pong.js` | Página y código de Pong |
+| `cueva/` | Página (`cueva.html`) y código (`cueva.js`) de Vuelo en la Cueva |
+| `pong/` | Página (`pong.html`) y código (`pong.js`) de Pong |
+| `submarino/` | Página (`submarino.html`) y código (`submarino.js`) de Submarino |
+| `zorro/` | Página (`zorro.html`) y código (`zorro.js`) de Zorro Veloz |
 | `common.js` | Código compartido: bucle de juego, récords y mensajes en pantalla |
 | `style.css` | Estilos de todas las páginas |
 
-Para cambiar un juego, edita su `.js` y recarga la página en el navegador. Las constantes al inicio de cada archivo (tamaños, posiciones) y los números dentro de `update()` (gravedad, velocidad, fuerza del salto) son lo más fácil de ajustar.
+Para cambiar un juego, edita el `.js` de su carpeta y recarga la página en el navegador. Las constantes al inicio de cada archivo (tamaños, posiciones) y los números dentro de `update()` (gravedad, velocidad, fuerza del salto) son lo más fácil de ajustar.
