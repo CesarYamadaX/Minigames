@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Robot Veloz">
+  <rect width="96" height="96" rx="22" fill="#e5252a"/>
+  <g fill="#ffffff">
+    <rect x="30" y="30" width="48" height="9" rx="3"/>
+    <rect x="35" y="39" width="5" height="30" rx="2"/>
+    <rect x="68" y="39" width="5" height="30" rx="2"/>
+    <rect x="28" y="67" width="52" height="5" rx="2.5"/>
+  </g>
+  <g stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity=".6">
+    <path d="M12 44h12M16 54h10M12 64h8"/>
+  </g>
+</svg>

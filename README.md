@@ -17,13 +17,14 @@ Abre `index.html` en tu navegador y elige un juego. En cada uno, el enlace "← 
 
 | Archivo | Qué contiene |
 |---|---|
-| `index.html` | Menú principal con los récords |
+| `index.html` | Menú principal: un renglón por juego con su logo, descripción y récord |
 | `canon/` | Página (`canon.html`) y código (`canon.js`) de Vuelo en el Cañón |
 | `pong/` | Página (`pong.html`) y código (`pong.js`) de Pong |
 | `submarino/` | Página (`submarino.html`) y código (`submarino.js`) de Submarino |
 | `robot/` | Página (`robot.html`) y código (`robot.js`) de Robot Veloz |
 | `common.js` | Código compartido: bucle de juego, récords y mensajes en pantalla |
 | `style.css` | Estilos de todas las páginas |
+| `assets/logos/` | Logos de los juegos en SVG (también son el ícono de cada pestaña) |
 | `assets/` | Sprites de los personajes (robot, avioneta, celular, submarino), nubes de Vuelo en el Cañón y animales marinos de Submarino |
 
 Para cambiar un juego, edita el `.js` de su carpeta y recarga la página en el navegador. Las constantes al inicio de cada archivo (tamaños, posiciones) y los números dentro de `update()` (gravedad, velocidad, fuerza del salto) son lo más fácil de ajustar.
