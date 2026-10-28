@@ -1,5 +1,6 @@
 const c = document.getElementById('c'), g = c.getContext('2d');
-const W = c.width, H = c.height, GROUND = 170, FX = 50, FW = 34, FH = 26;
+const W = c.width, H = c.height, GROUND = 170, FX = 50, FW = 34, FH = 46;
+const foxImg = new Image(); foxImg.src = '../assets/zorro-robot.png';
 let fox, obs, speed, score, best = loadBest('zorro'), over, overAt, started, held = false, nextGap, scroll, t = 0;
 
 function reset() {
@@ -51,18 +52,9 @@ function update() {
 }
 
 function drawFox(x, base) {
-  const leg = fox.y === 0 && started && !over ? Math.sin(t * 0.5) * 4 : 0;
-  g.fillStyle = '#e65100';
-  g.beginPath(); g.ellipse(x + 2, base - 15, 10, 5, -0.5, 0, Math.PI * 2); g.fill();   // cola
-  g.fillRect(x + 6, base - 20, 20, 12);                                                 // cuerpo
-  g.fillRect(x + 22, base - FH, 9, 12);                                                 // cabeza
-  g.beginPath(); g.moveTo(x + 31, base - FH + 4); g.lineTo(x + FW, base - 18); g.lineTo(x + 31, base - 15); g.fill();
-  g.beginPath(); g.moveTo(x + 22, base - FH); g.lineTo(x + 24, base - FH - 7); g.lineTo(x + 27, base - FH); g.fill();
-  g.fillRect(x + 9 + leg, base - 8, 4, 8);
-  g.fillRect(x + 20 - leg, base - 8, 4, 8);
-  g.fillStyle = '#fff';
-  g.beginPath(); g.ellipse(x - 6, base - 11, 4, 3, -0.5, 0, Math.PI * 2); g.fill();     // punta de la cola
-  g.fillStyle = '#222'; g.fillRect(x + 27, base - FH + 3, 2, 2);
+  // robot corredor; en el suelo rebota un poco al correr
+  const bob = fox.y === 0 && started && !over ? Math.abs(Math.sin(t * 0.5)) * -2 : 0;
+  if (foxImg.complete) g.drawImage(foxImg, x - 2, base - FH + bob, 38, 47);
 }
 
 function draw() {

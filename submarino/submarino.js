@@ -1,5 +1,6 @@
 const c = document.getElementById('c'), g = c.getContext('2d');
 const W = c.width, H = c.height, CW = 50, SX = 70, R = 11;
+const subImg = new Image(); subImg.src = '../assets/submarino.png';
 let sub, cols, bubbles, score, best = loadBest('submarino'), over, overAt, started, frame, spawn, targetY = H / 2;
 
 function setPointer(e) { const r = c.getBoundingClientRect(); targetY = (e.clientY - r.top) / r.height * H; }
@@ -57,14 +58,7 @@ function drawRock(x, y, h, algaeY) {
 function drawSub(x, y) {
   g.save();
   g.translate(x, y); g.rotate(sub.tilt);
-  g.fillStyle = '#ffca28';
-  g.beginPath(); g.ellipse(0, 0, 17, 9, 0, 0, Math.PI * 2); g.fill();
-  g.fillRect(-4, -15, 9, 8);                 // torre
-  g.fillRect(2, -21, 2, 7);                  // periscopio
-  g.fillRect(2, -21, 6, 2);
-  g.fillStyle = '#ff8f00'; g.fillRect(-21, -5, 4, 10);   // hélice
-  g.fillStyle = '#81d4fa';
-  g.beginPath(); g.arc(7, -1, 4, 0, Math.PI * 2); g.fill();
+  if (subImg.complete) g.drawImage(subImg, -26, -22, 52, 45);
   g.restore();
 }
 

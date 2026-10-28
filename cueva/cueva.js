@@ -1,5 +1,6 @@
 const c = document.getElementById('c'), g = c.getContext('2d');
 const W = c.width, H = c.height, CW = 54, BX = 70, R = 10;
+const batImg = new Image(); batImg.src = '../assets/cueva-avioneta.png';
 let bat, cols, score, best = loadBest('cueva'), over, overAt, started, frame;
 
 function reset() {
@@ -56,23 +57,12 @@ function drawRock(x, edge, dir) {
 }
 
 function drawBat(x, y) {
-  const w = Math.sin(bat.wing) * 9;
-  g.fillStyle = '#9575cd';
-  for (const s of [-1, 1]) {
-    g.beginPath();
-    g.moveTo(x + s * 4, y - 2);
-    g.lineTo(x + s * 24, y - 4 + w);
-    g.lineTo(x + s * 18, y + 4 + w / 2);
-    g.lineTo(x + s * 11, y + 2);
-    g.lineTo(x + s * 5, y + 5);
-    g.fill();
-    g.beginPath();
-    g.moveTo(x + s * 6, y - 6); g.lineTo(x + s * 4, y - 15); g.lineTo(x + s * 1, y - 8);
-    g.fill();
-  }
-  g.beginPath(); g.ellipse(x, y, 8, 10, 0, 0, Math.PI * 2); g.fill();
-  g.fillStyle = '#ffeb3b';
-  g.fillRect(x - 4, y - 4, 2, 2); g.fillRect(x + 2, y - 4, 2, 2);
+  // avioneta; se inclina según suba o baje
+  if (!batImg.complete) return;
+  g.save();
+  g.translate(x, y); g.rotate(Math.max(-0.4, Math.min(0.5, bat.v * 0.06)));
+  g.drawImage(batImg, -27, -22, 54, 44);
+  g.restore();
 }
 
 function draw() {

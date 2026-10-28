@@ -1,5 +1,6 @@
 const c = document.getElementById('c'), g = c.getContext('2d');
 const W = c.width, H = c.height, PW = 80, PH = 10, PY = H - 30, B = 6, WALL = 10;
+const padImg = new Image(); padImg.src = '../assets/pong-celular.png';
 let px, ball, score, best = loadBest('pong'), wait, over, overAt, pointerX = null;
 
 function setPointer(e) { const r = c.getBoundingClientRect(); pointerX = (e.clientX - r.left) / r.width * W; }
@@ -46,7 +47,7 @@ function draw() {
   g.fillRect(0, 0, WALL, H);
   g.fillRect(W - WALL, 0, WALL, H);
   g.fillStyle = '#fff';
-  g.fillRect(px, PY, PW, PH);
+  if (padImg.complete) g.drawImage(padImg, px, PY - 4, PW, 28); else g.fillRect(px, PY, PW, PH);
   if (wait % 20 < 10) g.fillRect(ball.x - B, ball.y - B, B * 2, B * 2);
   g.font = 'bold 40px system-ui, sans-serif'; g.textAlign = 'center';
   g.fillText(score, W / 2, 70);
