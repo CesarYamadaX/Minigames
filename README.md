@@ -2,7 +2,7 @@
 
 Colección de minijuegos de navegador en HTML, CSS y JavaScript puros (sin dependencias ni build).
 
-- **Vuelo en el Cañón**: clic o toque para subir la avioneta entre columnas de roca; el hueco se cierra con los puntos.
+- **Vuelo en el Cañón**: clic o toque para subir la avioneta entre columnas de roca; el hueco se cierra con los puntos. Desde el mediodía pasan nubes por delante que tapan cada vez más la pantalla. El cielo pasa por mañana, mediodía y noche conforme avanzas (para ver una sola fase: `canon/canon.html?fase=manana`, `mediodia` o `noche`).
 - **Pong**: un jugador; mueve la pala con el ratón o el dedo y devuelve la pelota contra el techo y las paredes. Cada golpe suma un punto y la acelera.
 - **Submarino**: mueve el ratón o el dedo arriba y abajo para pasar entre rocas; desde 5 puntos los huecos se mueven.
 - **Robot Veloz**: clic o toque para saltar las vallas en la pista; mantén pulsado para saltar más alto y haz clic en el aire para doble salto. El estadio pasa por mañana, mediodía y noche cada 2000 puntos, y el público en las gradas crece con cada día completo, al volver a la mañana: mínimas, pocas, intermedias y todas. Para fijar una variante: `robot/robot.html?fase=manana|mediodia|noche&luces=minimas|pocas|intermedias|todas`.
@@ -24,6 +24,6 @@ Abre `index.html` en tu navegador y elige un juego. En cada uno, el enlace "← 
 | `robot/` | Página (`robot.html`) y código (`robot.js`) de Robot Veloz |
 | `common.js` | Código compartido: bucle de juego, récords y mensajes en pantalla |
 | `style.css` | Estilos de todas las páginas |
-| `assets/` | Sprites de los personajes (robot, avioneta, celular, submarino) |
+| `assets/` | Sprites de los personajes (robot, avioneta, celular, submarino) y nubes de Vuelo en el Cañón |
 
 Para cambiar un juego, edita el `.js` de su carpeta y recarga la página en el navegador. Las constantes al inicio de cada archivo (tamaños, posiciones) y los números dentro de `update()` (gravedad, velocidad, fuerza del salto) son lo más fácil de ajustar.

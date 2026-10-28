@@ -1,12 +1,12 @@
 const c = document.getElementById('c'), g = c.getContext('2d');
 const W = c.width, H = c.height, CW = 54, BX = 70, R = 10;
 const batImg = new Image(); batImg.src = '../assets/canon-avioneta.png';
-let bgx = 0;
+let bgx = 0, fog = [];
 let bat, cols, score, best = loadBest('canon'), over, overAt, started, frame;
 
 function reset() {
   bat = { y: H / 2, v: 0, wing: 0 };
-  cols = []; score = 0; over = false; started = false; frame = 0;
+  cols = []; score = 0; over = false; started = false; frame = 0; bgx = 0; fog = [];
 }
 
 function flap() {
@@ -40,28 +40,112 @@ function update() {
     if (BX + R > p.x && BX - R < p.x + CW && (bat.y - R < p.top - 4 || bat.y + R > p.top + p.gap + 4)) die();
   }
   cols = cols.filter(p => p.x > -CW);
+  updateFog();
   if (bat.y - R < 0 || bat.y + R > H) die();
 }
 
-// Fondo: nubes y mesetas lejanas que se desplazan más lento que las columnas.
+// Fases del día: mañana → mediodía → noche → mañana, según la distancia recorrida (cada fase dura
+// 10 columnas y la transición las 2 últimas). Para ver una sola fase: canon.html?fase=manana | mediodia | noche
+const PHASES = {
+  manana: { skyTop: '#6f8fd0', skyMid: '#f2a7a0', skyBot: '#ffd9a8', mesaFar: '#c47a86', mesaNear: '#9a5470',
+    rockLight: '#d0703f', rock: '#a6482f', rockShadow: '#62292a', sunX: W * 0.25, sunY: H * 0.72, sunR: 24, sunIn: '#fff1c4', sunOut: '#ffb067', sunA: 1, cloudA: 0.95, night: 0 },
+  mediodia: { skyTop: '#3f9de6', skyMid: '#7cc4f2', skyBot: '#cfeeff', mesaFar: '#d7956c', mesaNear: '#b56c4a',
+    rockLight: '#d47a48', rock: '#ad5434', rockShadow: '#6b2e25', sunX: W * 0.72, sunY: 80, sunR: 16, sunIn: '#ffffff', sunOut: '#fff3b0', sunA: 1, cloudA: 1, night: 0 },
+  noche: { skyTop: '#050819', skyMid: '#121b42', skyBot: '#26315f', mesaFar: '#2a2f55', mesaNear: '#1c1f3d',
+    rockLight: '#5e3f45', rock: '#46303a', rockShadow: '#24182a', sunX: W * 1.1, sunY: H * 0.72, sunR: 24, sunIn: '#ffd9a0', sunOut: '#ff8a50', sunA: 0, cloudA: 0.28, night: 1 },
+};
+const ORDER = ['manana', 'mediodia', 'noche'], PHASE_LEN = 1800, FADE = 360;
+const FORCED = (location.search.match(/[?&]fase=(manana|mediodia|noche)\b/) || [])[1];
+function mix(c1, c2, k) {
+  const p = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const A = p(c1), B = p(c2);
+  return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * k).toString(16).padStart(2, '0')).join('');
+}
+function currentPhase() {
+  if (FORCED) return PHASES[FORCED];
+  const c = bgx % (PHASE_LEN * 3), i = Math.floor(c / PHASE_LEN), within = c - i * PHASE_LEN;
+  const k = within < PHASE_LEN - FADE ? 0 : (v => v * v * (3 - 2 * v))((within - PHASE_LEN + FADE) / FADE);
+  const A = PHASES[ORDER[i]], B = PHASES[ORDER[(i + 1) % 3]], o = {};
+  for (const key in A) o[key] = typeof A[key] === 'number' ? A[key] + (B[key] - A[key]) * k : mix(A[key], B[key], k);
+  return o;
+}
+
+// Nubes que pasan POR DELANTE de todo: no hay en la mañana; empiezan al mediodía y, conforme avanzas
+// hacia la noche, salen más seguido y más grandes hasta tapar buena parte de la pantalla.
+const cloudImgs = [1, 2, 3, 4].map(n => {
+  const i = new Image();
+  i.onload = () => {   // versión oscurecida para la noche
+    const cv = document.createElement('canvas'); cv.width = i.width; cv.height = i.height;
+    const x = cv.getContext('2d'); x.drawImage(i, 0, 0);
+    x.globalCompositeOperation = 'source-atop'; x.fillStyle = 'rgba(28,36,80,0.6)'; x.fillRect(0, 0, cv.width, cv.height);
+    i.dark = cv;
+  };
+  i.src = '../assets/canon-nube-' + n + '.png';
+  return i;
+});
+function fogDensity() {
+  if (FORCED) return { manana: 0, mediodia: 0.4, noche: 0.9 }[FORCED];
+  const c = bgx % (PHASE_LEN * 3), i = Math.floor(c / PHASE_LEN), within = (c - i * PHASE_LEN) / PHASE_LEN;
+  if (i === 0) return 0;                      // mañana: cielo despejado
+  if (i === 1) return 0.15 + within * 0.45;   // mediodía: de 0.15 a 0.6
+  if (within > (PHASE_LEN - FADE) / PHASE_LEN) return 0;   // amanece: ya no salen nubes
+  return 0.6 + within * 0.4;                  // noche: de 0.6 a 1
+}
+function updateFog() {
+  const d = fogDensity();
+  const target = Math.round(d * 14);
+  if (d > 0 && fog.length < target && Math.random() < 0.04 + d * 0.1) {
+    const s = 0.9 + Math.random() * (0.6 + d * 0.9);
+    fog.push({ img: Math.floor(Math.random() * 4), s, a: 1, x: W + 20, y: -30 + Math.random() * (H - 30), v: 2.2 + Math.random() * 1.2 });
+  }
+  // sin nubes de día: al amanecer las que quedan se desvanecen en menos de un segundo
+  for (const f of fog) { f.x -= f.v; if (d === 0) f.a -= 0.025; }
+  fog = fog.filter(f => f.x > -320 && f.a > 0);
+}
+function drawFog() {
+  for (const f of fog) {
+    const img = cloudImgs[f.img];
+    if (!img.complete) continue;
+    const w = img.width / 2 * f.s, h = img.height / 2 * f.s;
+    g.save(); g.globalAlpha = 0.95 * f.a;
+    g.drawImage(P.night > 0.5 && img.dark ? img.dark : img, f.x, f.y, w, h);
+    g.restore();
+  }
+}
+
+// Fondo: mesetas lejanas que se desplazan más lento que las columnas.
 const rnd = seeded(7);
-const clouds = Array.from({ length: 7 }, () => ({ x: rnd() * (W + 120), y: 30 + rnd() * (H - 220), s: 0.6 + rnd() * 0.8 }));
+const stars = Array.from({ length: 45 }, () => ({ x: rnd() * W, y: rnd() * H * 0.7, s: 0.6 + rnd() * 1.3, p: rnd() * 6 }));
 const mesas = []; let mesaEnd = 0;
 while (mesaEnd < W * 1.6) { const w = 40 + rnd() * 70; mesas.push({ x: mesaEnd, w, h: 50 + rnd() * 90 }); mesaEnd += w + 10 + rnd() * 30; }
+let P = PHASES.manana;
 
 function drawBackground() {
+  P = currentPhase();
   const sky = g.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0, '#2f2160'); sky.addColorStop(0.55, '#d4546f'); sky.addColorStop(1, '#ffb878');
+  sky.addColorStop(0, P.skyTop); sky.addColorStop(0.55, P.skyMid); sky.addColorStop(1, P.skyBot);
   g.fillStyle = sky; g.fillRect(0, 0, W, H);
-  const sun = g.createRadialGradient(W * 0.72, H * 0.62, 6, W * 0.72, H * 0.62, 90);
-  sun.addColorStop(0, 'rgba(255,240,200,1)'); sun.addColorStop(0.25, 'rgba(255,214,150,0.9)'); sun.addColorStop(1, 'rgba(255,184,120,0)');
-  g.fillStyle = sun; g.fillRect(0, 0, W, H);
-  for (const c of clouds) {
-    const x = ((c.x - bgx * 0.35 * c.s) % (W + 140) + W + 140) % (W + 140) - 70;
-    g.fillStyle = 'rgba(255,255,255,0.28)';
-    for (const [dx, dy, r] of [[-16, 2, 11], [0, -4, 15], [17, 1, 12], [32, 4, 8]]) { g.beginPath(); g.arc(x + dx * c.s, c.y + dy * c.s, r * c.s, 0, Math.PI * 2); g.fill(); }
+  if (P.night > 0) {
+    for (const st of stars) { g.fillStyle = 'rgba(255,255,255,' + (P.night * (0.5 + 0.4 * Math.sin(frame / 25 + st.p))) + ')'; g.fillRect(st.x, st.y, st.s, st.s); }
+    g.save(); g.globalAlpha = P.night;
+    g.shadowColor = '#fff6d8'; g.shadowBlur = 20; g.fillStyle = '#fff6d8';
+    g.beginPath(); g.arc(W * 0.7, 90, 16, 0, Math.PI * 2); g.fill();
+    g.shadowBlur = 0; g.fillStyle = P.skyTop;
+    g.beginPath(); g.arc(W * 0.7 + 7, 85, 13, 0, Math.PI * 2); g.fill();
+    g.restore();
   }
-  for (const [layer, f, col] of [[0, 0.18, '#a8465f'], [1, 0.35, '#7a2f4d']]) {
+  if (P.sunA > 0.01) {
+    g.save(); g.globalAlpha = P.sunA * 0.5;
+    const halo = g.createRadialGradient(P.sunX, P.sunY, P.sunR * 0.5, P.sunX, P.sunY, P.sunR * 4.5);
+    halo.addColorStop(0, P.sunOut); halo.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = halo; g.fillRect(P.sunX - P.sunR * 5, P.sunY - P.sunR * 5, P.sunR * 10, P.sunR * 10);
+    g.globalAlpha = P.sunA;
+    const disc = g.createRadialGradient(P.sunX, P.sunY, 1, P.sunX, P.sunY, P.sunR);
+    disc.addColorStop(0, P.sunIn); disc.addColorStop(1, P.sunOut);
+    g.fillStyle = disc; g.beginPath(); g.arc(P.sunX, P.sunY, P.sunR, 0, Math.PI * 2); g.fill();
+    g.restore();
+  }
+  for (const [layer, f, col] of [[0, 0.18, P.mesaFar], [1, 0.35, P.mesaNear]]) {
     const off = -((bgx * f + layer * 90) % mesaEnd);
     g.fillStyle = col;
     for (let k = 0; k < 2; k++) for (const m of mesas) {
@@ -76,7 +160,7 @@ function drawBackground() {
 function drawRock(x, edge, dir) {
   const far = dir < 0 ? 0 : H, t = 14;
   const grad = g.createLinearGradient(x, 0, x + CW, 0);
-  grad.addColorStop(0, '#c4633f'); grad.addColorStop(0.45, '#9a3f2e'); grad.addColorStop(1, '#5a2327');
+  grad.addColorStop(0, P.rockLight); grad.addColorStop(0.45, P.rock); grad.addColorStop(1, P.rockShadow);
   g.fillStyle = grad;
   g.beginPath();
   g.moveTo(x, far);
@@ -108,6 +192,7 @@ function draw() {
   drawBackground();
   for (const p of cols) { drawRock(p.x, p.top, -1); drawRock(p.x, p.top + p.gap, 1); }
   drawBat(BX, bat.y);
+  drawFog();
   g.fillStyle = '#fff'; g.textAlign = 'center'; g.font = 'bold 32px system-ui, sans-serif';
   if (started) g.fillText(score, W / 2, 50);
   g.textAlign = 'right'; g.font = '14px system-ui, sans-serif';
