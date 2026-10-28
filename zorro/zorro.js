@@ -106,9 +106,9 @@ const nightStars = Array.from({ length: 40 }, ((r) => () => ({ x: r() * W, y: r(
 const towerX = [90, 450];
 
 // Puntos de colores en las gradas: cuántos lugares se ven ocupados.
-// Cada partida elige un nivel al azar; para fijarlo: zorro.html?luces=pocas | intermedias | todas
-const CROWD_LEVELS = { pocas: 0.25, intermedias: 0.6, todas: 1 };
-const FORCED_LIGHTS = (location.search.match(/[?&]luces=(pocas|intermedias|todas)\b/) || [])[1];
+// Cada partida elige un nivel al azar; para fijarlo: zorro.html?luces=minimas | pocas | intermedias | todas
+const CROWD_LEVELS = { minimas: 0.08, pocas: 0.25, intermedias: 0.6, todas: 1 };
+const FORCED_LIGHTS = (location.search.match(/[?&]luces=(minimas|pocas|intermedias|todas)\b/) || [])[1];
 let crowdFrac;
 function pickLights() {
   const names = Object.keys(CROWD_LEVELS);
