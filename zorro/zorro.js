@@ -234,7 +234,7 @@ function drawFloodlight(n) {
 }
 
 function drawObstacle(o) {
-  // valla de atletismo: tabla blanca con soportes negros, postes azules con la parte baja plateada y base de tubo plateado
+  // valla de atletismo: tabla amarilla con soportes negros, postes azules con la parte baja plateada y base de tubo plateado
   const x = o.x, top = FEET - o.h, w = o.w;
   const metalY = FEET - Math.min(12, o.h * 0.35);   // donde el poste pasa de azul a plateado
   // sombra sobre la pista
@@ -254,8 +254,8 @@ function drawObstacle(o) {
   g.fillStyle = '#23242e'; g.fillRect(x - 1, FEET - 4.5, 3, 5); g.fillRect(x + w - 2, FEET - 4.5, 3, 5);
   // tabla blanca con contorno gris y soportes negros
   g.fillStyle = '#5a6070'; g.fillRect(x - 3, top - 1, w + 6, 8);
-  g.fillStyle = '#ffffff'; g.fillRect(x - 2, top, w + 4, 6);
-  g.fillStyle = '#d7dbe3'; g.fillRect(x - 2, top + 4, w + 4, 2);
+  g.fillStyle = '#ffd23f'; g.fillRect(x - 2, top, w + 4, 6);
+  g.fillStyle = '#e0a800'; g.fillRect(x - 2, top + 4, w + 4, 2);
   g.fillStyle = '#23242e'; g.fillRect(x + 1, top - 1, 5, 9); g.fillRect(x + w - 6, top - 1, 5, 9);
 }
 
