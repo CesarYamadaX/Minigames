@@ -1,6 +1,7 @@
 const c = document.getElementById('c'), g = c.getContext('2d');
 const W = c.width, H = c.height, PW = 80, PH = 10, PY = H - 30, B = 6, WALL = 10;
 const padImg = new Image(); padImg.src = '../assets/pong-celular.png';
+const logoImg = new Image(); logoImg.src = '../assets/pong-logo-honor.png';
 let px, ball, score, best = loadBest('pong'), wait, over, overAt, pointerX = null;
 
 function setPointer(e) { const r = c.getBoundingClientRect(); pointerX = (e.clientX - r.left) / r.width * W; }
@@ -51,6 +52,11 @@ function draw() {
   g.strokeStyle = 'rgba(229,37,42,0.28)'; g.lineWidth = 2;
   g.beginPath(); g.arc(W / 2, H / 2, 60, 0, Math.PI * 2); g.stroke();
   g.setLineDash([10, 10]); g.beginPath(); g.moveTo(WALL, H / 2); g.lineTo(W - WALL, H / 2); g.stroke(); g.setLineDash([]);
+  // logo de HONOR en el centro de la cancha, tenue para no distraer de la pelota
+  if (logoImg.complete) {
+    const lh = 104, lw = lh * logoImg.width / logoImg.height;
+    g.save(); g.globalAlpha = 0.22; g.drawImage(logoImg, W / 2 - lw / 2, H / 2 - lh / 2, lw, lh); g.restore();
+  }
   // paredes rojas con brillo
   g.save(); g.shadowColor = '#e5252a'; g.shadowBlur = 14; g.fillStyle = '#e5252a';
   g.fillRect(0, 0, W, WALL); g.fillRect(0, 0, WALL, H); g.fillRect(W - WALL, 0, WALL, H);
