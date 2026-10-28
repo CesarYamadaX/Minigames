@@ -1,6 +1,7 @@
 const c = document.getElementById('c'), g = c.getContext('2d');
 const W = c.width, H = c.height, CW = 50, SX = 70, R = 11;
 const subImg = new Image(); subImg.src = '../assets/submarino.png';
+let critters = [], nextCritter = 60;
 let sub, cols, bubbles, score, best = loadBest('submarino'), over, overAt, started, frame, spawn, targetY = H / 2;
 
 function setPointer(e) { const r = c.getBoundingClientRect(); targetY = (e.clientY - r.top) / r.height * H; }
@@ -24,6 +25,7 @@ function die() {
 
 function update() {
   frame++;
+  updateCritters();
   if (over) { sub.y = Math.min(H - R, sub.y + 2); return; }
   // sigue al ratón con velocidad máxima limitada, para que haya que anticiparse
   const dy = Math.max(-8, Math.min(8, (targetY - sub.y) * 0.25));
@@ -50,33 +52,116 @@ function update() {
   cols = cols.filter(p => p.x > -CW);
 }
 
-// Fondo marino: peces y relieve lejano que se mueven más lento que las rocas.
+// Animales marinos que cruzan el fondo de vez en cuando, por detrás de las rocas.
+const CRITTERS = [
+  { name: 'pez', v: 1.6, bob: 0.4 }, { name: 'tortuga', v: 0.9, bob: 0.5 }, { name: 'medusa', v: 0.45, bob: 1.6 },
+  { name: 'pulpo', v: 0.7, bob: 1.0 }, { name: 'mantarraya', v: 1.1, bob: 0.6 }, { name: 'ballena', v: 0.55, bob: 0.3 },
+].map(cr => { const i = new Image(); i.src = '../assets/submarino-' + cr.name + '.png'; return { ...cr, img: i }; });
+function updateCritters() {
+  if (--nextCritter <= 0 && critters.length < 2) {
+    const kind = CRITTERS[Math.floor(Math.random() * CRITTERS.length)];
+    const s = kind.name === 'ballena' ? 0.55 : 0.5;
+    critters.push({ kind, s, x: W + 20, y: 50 + Math.random() * (H - 220), ph: Math.random() * 6 });
+    nextCritter = 240 + Math.random() * 300;   // entre 4 y 9 segundos
+  }
+  for (const cr of critters) cr.x -= cr.kind.v;
+  critters = critters.filter(cr => cr.x > -(cr.kind.img.width || 300) * cr.s - 20);
+}
+function drawCritters() {
+  g.save(); g.globalAlpha = 0.85;
+  for (const cr of critters) {
+    const img = cr.kind.img;
+    if (!img.complete) continue;
+    const y = cr.y + Math.sin(frame / 40 + cr.ph) * 6 * cr.kind.bob;
+    g.drawImage(img, cr.x, y, img.width * cr.s, img.height * cr.s);
+  }
+  g.restore();
+}
+
+// Fondo marino: luz en la superficie, rayos, arrecife lejano, plancton y fondo con corales y algas.
 const rnd = seeded(3);
-const fish = Array.from({ length: 6 }, () => ({ y: 60 + rnd() * (H - 160), s: 0.4 + rnd() * 0.6, sz: 5 + rnd() * 4, ph: rnd() * (W + 80) }));
+const plankton = Array.from({ length: 40 }, () => ({ x: rnd() * W, y: rnd() * H, r: 0.6 + rnd() * 1.4, v: 0.1 + rnd() * 0.3, ph: rnd() * 6 }));
+const reef = Array.from({ length: 14 }, (_, i) => ({ x: i * 46 + rnd() * 20, kind: Math.floor(rnd() * 3), h: 28 + rnd() * 24, c: ['#e86a8a', '#f2994a', '#9b6fd6'][Math.floor(rnd() * 3)] }));
+const REEF_P = 14 * 46;
+const kelp = Array.from({ length: 9 }, (_, i) => ({ x: i * 72 + rnd() * 30, h: 70 + rnd() * 90, ph: rnd() * 6 }));
+const KELP_P = 9 * 72;
 
 function drawBackground() {
   const sea = g.createLinearGradient(0, 0, 0, H);
-  sea.addColorStop(0, '#2a8fd6'); sea.addColorStop(0.5, '#145a9e'); sea.addColorStop(1, '#07203f');
+  sea.addColorStop(0, '#3ab0e8'); sea.addColorStop(0.35, '#1a6fb8'); sea.addColorStop(0.7, '#0d3f7a'); sea.addColorStop(1, '#061a36');
   g.fillStyle = sea; g.fillRect(0, 0, W, H);
+  // superficie: reflejos ondulados
+  g.strokeStyle = 'rgba(255,255,255,0.18)'; g.lineWidth = 2;
+  for (let k = 0; k < 4; k++) {
+    g.beginPath();
+    for (let x = 0; x <= W; x += 8) g.lineTo(x, 8 + k * 9 + Math.sin(x / 22 + frame / 30 + k * 2) * 3);
+    g.stroke();
+  }
   // rayos de luz que se balancean
-  for (let i = 0; i < 4; i++) {
-    const x0 = i * W / 3 - 20 + Math.sin(frame / 90 + i * 1.7) * 22;
-    const ray = g.createLinearGradient(0, 0, 0, H * 0.8);
-    ray.addColorStop(0, 'rgba(255,255,255,0.13)'); ray.addColorStop(1, 'rgba(255,255,255,0)');
+  for (let i = 0; i < 5; i++) {
+    const x0 = i * W / 4 - 30 + Math.sin(frame / 90 + i * 1.7) * 22;
+    const ray = g.createLinearGradient(0, 0, 0, H * 0.85);
+    ray.addColorStop(0, 'rgba(255,255,255,0.16)'); ray.addColorStop(1, 'rgba(255,255,255,0)');
     g.fillStyle = ray;
-    g.beginPath(); g.moveTo(x0, 0); g.lineTo(x0 + 34, 0); g.lineTo(x0 + 120, H * 0.8); g.lineTo(x0 + 60, H * 0.8); g.fill();
+    g.beginPath(); g.moveTo(x0, 0); g.lineTo(x0 + 30, 0); g.lineTo(x0 + 110, H * 0.85); g.lineTo(x0 + 56, H * 0.85); g.fill();
   }
-  // lomas del fondo
-  g.fillStyle = '#0a2c52'; g.beginPath(); g.moveTo(0, H);
-  for (let x = 0; x <= W; x += 8) g.lineTo(x, H - 34 - Math.sin((x + frame * 0.6) / 41) * 10 - Math.sin((x + frame * 0.6) / 97) * 14);
+  // arrecife lejano (silueta)
+  g.fillStyle = 'rgba(8,40,84,0.55)'; g.beginPath(); g.moveTo(0, H);
+  for (let x = 0; x <= W; x += 6) g.lineTo(x, H - 90 - Math.sin((x + frame * 0.25) / 37) * 16 - Math.sin((x + frame * 0.25) / 13) * 6);
   g.lineTo(W, H); g.fill();
-  // peces lejanos
-  g.fillStyle = 'rgba(180,225,255,0.35)';
-  for (const f of fish) {
-    const x = ((f.ph - frame * (0.5 + f.s)) % (W + 80) + W + 80) % (W + 80) - 40;
-    g.beginPath(); g.ellipse(x, f.y, f.sz * 1.6, f.sz, 0, 0, Math.PI * 2); g.fill();
-    g.beginPath(); g.moveTo(x + f.sz * 1.4, f.y); g.lineTo(x + f.sz * 2.6, f.y - f.sz * 0.8); g.lineTo(x + f.sz * 2.6, f.y + f.sz * 0.8); g.fill();
+  drawCritters();
+  // algas altas que se mecen
+  const ko = (frame * 0.5) % KELP_P;
+  g.lineCap = 'round';
+  for (let k = 0; k < 2; k++) for (const kl of kelp) {
+    const x = kl.x - ko + k * KELP_P;
+    if (x < -20 || x > W + 20) continue;
+    g.strokeStyle = '#1f7a4d'; g.lineWidth = 6; g.beginPath(); g.moveTo(x, H);
+    for (let t = 0; t <= 1; t += 0.1) g.lineTo(x + Math.sin(frame / 35 + kl.ph + t * 3) * 10 * t, H - kl.h * t);
+    g.stroke();
+    g.strokeStyle = '#2ea56a'; g.lineWidth = 2; g.stroke();
   }
+  // fondo de arena y corales
+  g.fillStyle = '#123e6b'; g.beginPath(); g.moveTo(0, H);
+  for (let x = 0; x <= W; x += 6) g.lineTo(x, H - 26 - Math.sin((x + frame * 0.6) / 41) * 6);
+  g.lineTo(W, H); g.fill();
+  const ro = (frame * 0.6) % REEF_P;
+  for (let k = 0; k < 2; k++) for (const rf of reef) {
+    const x = rf.x - ro + k * REEF_P, base = H - 22;
+    if (x < -30 || x > W + 30) continue;
+    g.fillStyle = rf.c; g.strokeStyle = rf.c; g.lineCap = 'round';
+    if (rf.kind === 0) {        // coral de ramas
+      g.lineWidth = 4;
+      g.beginPath(); g.moveTo(x, base); g.lineTo(x, base - rf.h); g.stroke();
+      for (const [sy, dx, len] of [[0.35, -1, 0.45], [0.5, 1, 0.5], [0.7, -1, 0.35], [0.8, 1, 0.3]]) {
+        const y0 = base - rf.h * sy;
+        g.beginPath(); g.moveTo(x, y0); g.quadraticCurveTo(x + dx * rf.h * len * 0.6, y0, x + dx * rf.h * len * 0.7, y0 - rf.h * len * 0.6); g.stroke();
+      }
+    } else if (rf.kind === 1) { // coral cerebro
+      g.beginPath(); g.ellipse(x, base, rf.h * 0.6, rf.h * 0.48, 0, Math.PI, 0); g.fill();
+      g.strokeStyle = 'rgba(0,0,0,0.25)'; g.lineWidth = 1.5;
+      for (let k = 1; k <= 3; k++) { g.beginPath(); g.ellipse(x, base, rf.h * 0.6 * k / 4, rf.h * 0.48 * k / 4, 0, Math.PI, 0); g.stroke(); }
+    } else {                    // anémona
+      g.lineWidth = 3;
+      for (let t = -3; t <= 3; t++) {
+        const tx = x + t * 4 + Math.sin(frame / 20 + t) * 3, ty = base - rf.h * (0.55 + 0.08 * (3 - Math.abs(t)) / 3);
+        g.beginPath(); g.moveTo(x + t * 2, base); g.quadraticCurveTo(x + t * 3, base - rf.h * 0.3, tx, ty); g.stroke();
+        g.beginPath(); g.arc(tx, ty, 2.5, 0, Math.PI * 2); g.fillStyle = '#ffe1ec'; g.fill();
+      }
+    }
+  }
+  // plancton que sube despacio
+  for (const p of plankton) {
+    const y = ((p.y - frame * p.v) % H + H) % H, x = p.x + Math.sin(frame / 50 + p.ph) * 4;
+    g.fillStyle = 'rgba(220,240,255,0.35)'; g.fillRect(x, y, p.r, p.r);
+  }
+}
+
+// viñeta suave en las orillas
+function drawVignette() {
+  const v = g.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.75);
+  v.addColorStop(0, 'rgba(0,10,30,0)'); v.addColorStop(1, 'rgba(0,10,30,0.45)');
+  g.fillStyle = v; g.fillRect(0, 0, W, H);
 }
 
 // y/h: la roca; algaeY: el borde con algas (abajo en la roca del techo, arriba en la del suelo)
@@ -114,6 +199,7 @@ function draw() {
     drawRock(p.x, p.top + p.gap, H - p.top - p.gap, p.top + p.gap);
   }
   drawSub(SX, sub.y);
+  drawVignette();
   g.fillStyle = '#fff'; g.textAlign = 'center'; g.font = 'bold 32px system-ui, sans-serif';
   if (started) g.fillText(score, W / 2, 50);
   g.textAlign = 'right'; g.font = '14px system-ui, sans-serif';
