@@ -234,18 +234,19 @@ function drawFloodlight(n) {
 }
 
 function drawObstacle(o) {
-  // valla: dos postes y barras rojas y blancas; la alta lleva una segunda barra
+  // valla blanca con contorno oscuro, para que se distinga sobre los paneles rojos y blancos; la alta lleva una segunda barra
   const x = o.x, y = FEET - o.h;
-  g.fillStyle = '#e8edf7';
-  g.fillRect(x + 1, y, 3, o.h); g.fillRect(x + o.w - 4, y, 3, o.h);
-  g.fillStyle = '#1b1c26'; g.fillRect(x - 1, FEET - 3, 7, 3); g.fillRect(x + o.w - 6, FEET - 3, 7, 3);
-  for (const by of o.kind === 'roca' ? [y] : [y, y + o.h * 0.5]) {
-    for (let sx = 0; sx < o.w; sx += 8) {
-      g.fillStyle = (sx / 8) % 2 === 0 ? '#e5252a' : '#f2f3f7';
-      g.fillRect(x + sx, by, Math.min(8, o.w - sx), 7);
-    }
-    g.strokeStyle = '#1b1c26'; g.lineWidth = 1; g.strokeRect(x + 0.5, by + 0.5, o.w - 1, 6);
-  }
+  const bars = o.kind === 'roca' ? [y] : [y, y + o.h * 0.5];
+  // sombra sobre la pista
+  g.fillStyle = 'rgba(0,0,0,0.25)';
+  g.beginPath(); g.ellipse(x + o.w / 2, FEET, o.w / 2 + 3, 3, 0, 0, Math.PI * 2); g.fill();
+  const parts = [[x + 1, y, 4, o.h], [x + o.w - 5, y, 4, o.h], ...bars.map(by => [x, by, o.w, 7])];
+  g.fillStyle = '#1b1c26';
+  for (const [px, py, pw, ph] of parts) g.fillRect(px - 1.5, py - 1.5, pw + 3, ph + 3);
+  g.fillStyle = '#ffffff';
+  for (const [px, py, pw, ph] of parts) g.fillRect(px, py, pw, ph);
+  // bases
+  g.fillStyle = '#1b1c26'; g.fillRect(x - 2, FEET - 3, 8, 3); g.fillRect(x + o.w - 6, FEET - 3, 8, 3);
 }
 
 function draw() {
