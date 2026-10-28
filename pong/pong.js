@@ -1,5 +1,5 @@
 const c = document.getElementById('c'), g = c.getContext('2d');
-const W = c.width, H = c.height, PW = 80, PH = 10, PY = H - 30, B = 6, WALL = 10;
+const W = c.width, H = c.height, PW = 80, PH = 10, PY = H - 40, B = 6, WALL = 10;
 const padImg = new Image(); padImg.src = '../assets/pong-celular.png';
 const logoImg = new Image(); logoImg.src = '../assets/pong-logo-honor.png';
 let px, ball, score, best = loadBest('pong'), wait, over, overAt, pointerX = null;
@@ -35,7 +35,7 @@ function update() {
     ball.vx = speed * Math.sin(a); ball.vy = -speed * Math.cos(a);
     score++;
   }
-  if (ball.y - B > H) {
+  if (ball.y - B > H - WALL) {   // cruzó el borde de abajo: se escapó
     over = true; overAt = performance.now();
     if (score > best) { best = score; saveBest('pong', best); }
   }
@@ -56,10 +56,10 @@ function draw() {
   }
   // paredes blancas con brillo suave
   g.save(); g.shadowColor = 'rgba(255,255,255,0.6)'; g.shadowBlur = 12; g.fillStyle = '#f2f3f7';
-  g.fillRect(0, 0, W, WALL); g.fillRect(0, 0, WALL, H); g.fillRect(W - WALL, 0, WALL, H);
+  g.fillRect(0, 0, W, WALL); g.fillRect(0, 0, WALL, H); g.fillRect(W - WALL, 0, WALL, H); g.fillRect(0, H - WALL, W, WALL);
   g.restore();
   g.fillStyle = 'rgba(255,255,255,0.35)';
-  g.fillRect(0, WALL - 2, W, 2); g.fillRect(WALL - 2, 0, 2, H); g.fillRect(W - WALL, 0, 2, H);
+  g.fillRect(0, WALL - 2, W, 2); g.fillRect(WALL - 2, 0, 2, H); g.fillRect(W - WALL, 0, 2, H); g.fillRect(0, H - WALL, W, 2);
   // pala (celular) y pelota
   g.save(); g.shadowColor = 'rgba(229,37,42,0.7)'; g.shadowBlur = 16;
   if (padImg.complete) g.drawImage(padImg, px, PY - 4, PW, 28); else { g.fillStyle = '#fff'; g.fillRect(px, PY, PW, PH); }
