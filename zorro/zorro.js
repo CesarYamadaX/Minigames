@@ -6,6 +6,7 @@ let fox, obs, speed, score, best = loadBest('zorro'), over, overAt, started, hel
 function reset() {
   fox = { y: 0, v: 0, jumps: 0 };   // y = altura sobre el suelo
   obs = []; speed = 5; score = 0; over = false; started = false; nextGap = 0; scroll = 0;
+  pickLights();
 }
 
 function press() {
@@ -73,13 +74,13 @@ function wrap(v, p) { return ((v % p) + p) % p; }
 const SUN_LOW = STAND_TOP - 2;
 const PHASES = {
   manana: { skyTop: '#6f8fd0', skyBot: '#ffc9a0', pole: '#8a8fa8', head: '#e8e2e0', lamp: '#fff6c2', stand: '#4a4560', roof: '#a397b0',
-    trackTop: '#c0472e', trackBot: '#d8603e', lane: '#fbf3ea', cloud: '#ffe3d6', cloudA: 0.75, dim: 0.12, night: 0,
+    trackTop: '#c0472e', trackBot: '#d8603e', lane: '#fbf3ea', cloud: '#ffe3d6', cloudA: 0.75, dim: 0.12, night: 0, beam: 0.4,
     sunX: 130, sunY: SUN_LOW, sunR: 22, sunIn: '#fff1c4', sunOut: '#ffb067', sunA: 1 },
   mediodia: { skyTop: '#5fb6ee', skyBot: '#d6f0ff', pole: '#7d8aa6', head: '#e8edf7', lamp: '#fff6c2', stand: '#3b4660', roof: '#8b97b3',
-    trackTop: '#b8402a', trackBot: '#d4593a', lane: '#f2f3f7', cloud: '#ffffff', cloudA: 0.7, dim: 0, night: 0,
+    trackTop: '#b8402a', trackBot: '#d4593a', lane: '#f2f3f7', cloud: '#ffffff', cloudA: 0.7, dim: 0, night: 0, beam: 0,
     sunX: 250, sunY: 30, sunR: 13, sunIn: '#ffffff', sunOut: '#fff3b0', sunA: 1 },
   noche: { skyTop: '#070b22', skyBot: '#1d2b5a', pole: '#3a4460', head: '#9aa6c4', lamp: '#ffffff', stand: '#1a2034', roof: '#3a4460',
-    trackTop: '#5a2420', trackBot: '#6e2c22', lane: '#b9bfd0', cloud: '#c8d0e8', cloudA: 0.15, dim: 0.5, night: 1,
+    trackTop: '#5a2420', trackBot: '#6e2c22', lane: '#b9bfd0', cloud: '#c8d0e8', cloudA: 0.15, dim: 0.5, night: 1, beam: 1,
     sunX: 600, sunY: SUN_LOW, sunR: 22, sunIn: '#ffd9a0', sunOut: '#ff8a50', sunA: 0 },
 };
 const ORDER = ['manana', 'mediodia', 'noche'];
@@ -103,6 +104,18 @@ function currentPhase() {
 }
 const nightStars = Array.from({ length: 40 }, ((r) => () => ({ x: r() * W, y: r() * (STAND_TOP - 10), s: 0.6 + r() * 1.2, p: r() * 6 }))(seeded(17)));
 const towerX = [90, 450];
+
+// Iluminación del estadio: qué focos de cada torre están encendidos (4 focos por torre).
+// Cada partida elige un nivel al azar; para fijarlo: zorro.html?luces=pocas | intermedias | todas
+const LIGHT_LEVELS = { pocas: [[1], [2]], intermedias: [[0, 1, 3], [1, 2]], todas: [[0, 1, 2, 3], [0, 1, 2, 3]] };
+const FORCED_LIGHTS = (location.search.match(/[?&]luces=(pocas|intermedias|todas)\b/) || [])[1];
+let lights, lightFrac;
+function pickLights() {
+  const names = Object.keys(LIGHT_LEVELS);
+  const lv = LIGHT_LEVELS[FORCED_LIGHTS || names[Math.floor(Math.random() * names.length)]];
+  lights = lv.map(on => [0, 1, 2, 3].map(i => on.includes(i)));
+  lightFrac = lv.reduce((a, on) => a + on.length, 0) / 8;
+}
 
 function drawStadium(P) {
   const n = P.night;
@@ -139,16 +152,20 @@ function drawStadium(P) {
   g.restore();
   const off = -wrap(scroll * 0.25, PS);
   // torres de luz
-  for (let k = 0; k < 3; k++) for (const tx of towerX) {
+  for (let k = 0; k < 3; k++) towerX.forEach((tx, j) => {
     const x = tx + off + k * PS;
-    if (x < -30 || x > W + 30) continue;
+    if (x < -30 || x > W + 30) return;
     g.fillStyle = P.pole; g.fillRect(x - 2, 20, 4, STAND_TOP - 20);
     g.fillStyle = P.head; g.fillRect(x - 15, 12, 30, 12);
-    g.save();
-    if (n > 0) { g.shadowColor = '#fffbe0'; g.shadowBlur = 22 * n; }
-    g.fillStyle = P.lamp; for (let i = 0; i < 4; i++) g.fillRect(x - 13 + i * 7, 14, 5, 8);
-    g.restore();
-  }
+    for (let i = 0; i < 4; i++) {
+      const on = lights[j][i];
+      g.save();
+      if (on && P.beam > 0) { g.shadowColor = '#fffbe0'; g.shadowBlur = 22 * P.beam; }
+      g.fillStyle = on ? P.lamp : mix(P.head, '#4a5068', 0.6);
+      g.fillRect(x - 13 + i * 7, 14, 5, 8);
+      g.restore();
+    }
+  });
   // gradas
   g.fillStyle = P.stand; g.fillRect(0, STAND_TOP, W, STAND_BOT - STAND_TOP);
   g.fillStyle = P.roof; g.fillRect(0, STAND_TOP - 4, W, 4);
@@ -165,7 +182,7 @@ function drawStadium(P) {
   if (P.dim > 0) { g.fillStyle = 'rgba(6,10,30,' + P.dim + ')'; g.fillRect(0, STAND_TOP, W, STAND_BOT - STAND_TOP); }
   if (n > 0) {
     // flashes de cámaras en el público
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < Math.round(5 * lightFrac); i++) {
       const h = Math.sin((Math.floor(t / 4) + i * 37) * 12.9898) * 43758.5453, r = h - Math.floor(h);
       if (r > 0.55) continue;
       const fx = wrap(r * 1777 + off, W), fy = STAND_TOP + 4 + Math.floor(r * 97) % 7 * 7;
@@ -180,7 +197,7 @@ function drawTrack(P) {
   // vallas publicitarias (de noche son pantallas encendidas)
   const bo = -wrap(scroll, 160);
   g.save();
-  if (n > 0) { g.shadowColor = '#e5252a'; g.shadowBlur = 10 * n; }
+  if (n > 0) { g.shadowColor = '#e5252a'; g.shadowBlur = 10 * n * lightFrac; }
   for (let x = bo - 160; x < W + 160; x += 80) {
     const red = Math.round((x - bo) / 80) % 2 === 0;
     g.fillStyle = red ? '#e5252a' : '#f2f3f7'; g.fillRect(x, GROUND - 16, 80, 15);
@@ -209,14 +226,15 @@ function drawFloodlight(n) {
   if (n <= 0) return;
   const off = -wrap(scroll * 0.25, PS);
   g.save(); g.globalCompositeOperation = 'lighter';
-  for (let k = 0; k < 3; k++) for (const tx of towerX) {
+  for (let k = 0; k < 3; k++) towerX.forEach((tx, j) => {
     const x = tx + off + k * PS;
-    if (x < -160 || x > W + 160) continue;
+    const lit = lights[j].filter(Boolean).length / 4;
+    if (x < -160 || x > W + 160 || !lit) return;
     const beam = g.createLinearGradient(0, 18, 0, H);
-    beam.addColorStop(0, 'rgba(255,248,220,' + 0.22 * n + ')'); beam.addColorStop(1, 'rgba(255,248,220,' + 0.06 * n + ')');
+    beam.addColorStop(0, 'rgba(255,248,220,' + 0.24 * n * lit + ')'); beam.addColorStop(1, 'rgba(255,248,220,' + 0.08 * n * lit + ')');
     g.fillStyle = beam;
     g.beginPath(); g.moveTo(x - 12, 22); g.lineTo(x + 12, 22); g.lineTo(x + 120, H); g.lineTo(x - 30, H); g.fill();
-  }
+  });
   g.restore();
 }
 
@@ -239,9 +257,12 @@ function draw() {
   const P = currentPhase();
   drawStadium(P);
   drawTrack(P);
-  drawFloodlight(P.night);
   for (const o of obs) drawObstacle(o);
   drawFox(FX, FEET - fox.y);
+  // con menos focos, el estadio queda más oscuro de noche (los haces de luz lo iluminan encima)
+  const dark = P.night * (1 - lightFrac) * 0.6;
+  if (dark > 0) { g.fillStyle = 'rgba(4,6,20,' + dark + ')'; g.fillRect(0, STAND_TOP - 4, W, H - STAND_TOP + 4); }
+  drawFloodlight(P.beam);
 
   // marcador sobre una píldora oscura para que se lea en cualquier fase
   g.fillStyle = 'rgba(10,12,24,0.45)';
