@@ -1,12 +1,12 @@
 const c = document.getElementById('c'), g = c.getContext('2d');
 const W = c.width, H = c.height, CW = 54, BX = 70, R = 10;
 const batImg = new Image(); batImg.src = '../assets/cueva-avioneta.png';
-let bgx = 0;
+let bgx = 0, fog = [];
 let bat, cols, score, best = loadBest('cueva'), over, overAt, started, frame;
 
 function reset() {
   bat = { y: H / 2, v: 0, wing: 0 };
-  cols = []; score = 0; over = false; started = false; frame = 0; bgx = 0;
+  cols = []; score = 0; over = false; started = false; frame = 0; bgx = 0; fog = [];
 }
 
 function flap() {
@@ -40,6 +40,7 @@ function update() {
     if (BX + R > p.x && BX - R < p.x + CW && (bat.y - R < p.top - 4 || bat.y + R > p.top + p.gap + 4)) die();
   }
   cols = cols.filter(p => p.x > -CW);
+  updateFog();
   if (bat.y - R < 0 || bat.y + R > H) die();
 }
 
@@ -69,10 +70,49 @@ function currentPhase() {
   return o;
 }
 
-// Fondo: nubes (imágenes) y mesetas lejanas que se desplazan más lento que las columnas.
-const cloudImgs = [1, 2, 3, 4].map(n => { const i = new Image(); i.src = '../assets/cueva-nube-' + n + '.png'; return i; });
+// Nubes que pasan POR DELANTE de todo: no hay en la mañana; empiezan al mediodía y, conforme avanzas
+// hacia la noche, salen más seguido y más grandes hasta tapar buena parte de la pantalla.
+const cloudImgs = [1, 2, 3, 4].map(n => {
+  const i = new Image();
+  i.onload = () => {   // versión oscurecida para la noche
+    const cv = document.createElement('canvas'); cv.width = i.width; cv.height = i.height;
+    const x = cv.getContext('2d'); x.drawImage(i, 0, 0);
+    x.globalCompositeOperation = 'source-atop'; x.fillStyle = 'rgba(28,36,80,0.6)'; x.fillRect(0, 0, cv.width, cv.height);
+    i.dark = cv;
+  };
+  i.src = '../assets/cueva-nube-' + n + '.png';
+  return i;
+});
+function fogDensity() {
+  if (FORCED) return { manana: 0, mediodia: 0.4, noche: 0.9 }[FORCED];
+  const c = bgx % (PHASE_LEN * 3), i = Math.floor(c / PHASE_LEN), within = (c - i * PHASE_LEN) / PHASE_LEN;
+  if (i === 0) return 0;                      // mañana: cielo despejado
+  if (i === 1) return 0.15 + within * 0.45;   // mediodía: de 0.15 a 0.6
+  return 0.6 + within * 0.4;                  // noche: de 0.6 a 1
+}
+function updateFog() {
+  const d = fogDensity();
+  const target = Math.round(d * 14);
+  if (d > 0 && fog.length < target && Math.random() < 0.04 + d * 0.1) {
+    const s = 0.9 + Math.random() * (0.6 + d * 0.9);
+    fog.push({ img: Math.floor(Math.random() * 4), s, x: W + 20, y: -30 + Math.random() * (H - 30), v: 2.2 + Math.random() * 1.2 });
+  }
+  for (const f of fog) f.x -= f.v;
+  fog = fog.filter(f => f.x > -320);
+}
+function drawFog() {
+  for (const f of fog) {
+    const img = cloudImgs[f.img];
+    if (!img.complete) continue;
+    const w = img.width / 2 * f.s, h = img.height / 2 * f.s;
+    g.save(); g.globalAlpha = 0.95;
+    g.drawImage(P.night > 0.5 && img.dark ? img.dark : img, f.x, f.y, w, h);
+    g.restore();
+  }
+}
+
+// Fondo: mesetas lejanas que se desplazan más lento que las columnas.
 const rnd = seeded(7);
-const clouds = Array.from({ length: 6 }, (_, i) => ({ img: i % 4, x: rnd() * (W + 160), y: 24 + rnd() * (H - 240), s: 0.55 + rnd() * 0.45 }));
 const stars = Array.from({ length: 45 }, () => ({ x: rnd() * W, y: rnd() * H * 0.7, s: 0.6 + rnd() * 1.3, p: rnd() * 6 }));
 const mesas = []; let mesaEnd = 0;
 while (mesaEnd < W * 1.6) { const w = 40 + rnd() * 70; mesas.push({ x: mesaEnd, w, h: 50 + rnd() * 90 }); mesaEnd += w + 10 + rnd() * 30; }
@@ -103,15 +143,6 @@ function drawBackground() {
     g.fillStyle = disc; g.beginPath(); g.arc(P.sunX, P.sunY, P.sunR, 0, Math.PI * 2); g.fill();
     g.restore();
   }
-  g.save(); g.globalAlpha = P.cloudA;
-  for (const cl of clouds) {
-    const img = cloudImgs[cl.img];
-    if (!img.complete) continue;
-    const w = img.width / 2 * cl.s, h = img.height / 2 * cl.s;
-    const x = ((cl.x - bgx * 0.35 * cl.s) % (W + 160) + W + 160) % (W + 160) - 80;
-    g.drawImage(img, x - w / 2, cl.y, w, h);
-  }
-  g.restore();
   for (const [layer, f, col] of [[0, 0.18, P.mesaFar], [1, 0.35, P.mesaNear]]) {
     const off = -((bgx * f + layer * 90) % mesaEnd);
     g.fillStyle = col;
@@ -159,6 +190,7 @@ function draw() {
   drawBackground();
   for (const p of cols) { drawRock(p.x, p.top, -1); drawRock(p.x, p.top + p.gap, 1); }
   drawBat(BX, bat.y);
+  drawFog();
   g.fillStyle = '#fff'; g.textAlign = 'center'; g.font = 'bold 32px system-ui, sans-serif';
   if (started) g.fillText(score, W / 2, 50);
   g.textAlign = 'right'; g.font = '14px system-ui, sans-serif';
