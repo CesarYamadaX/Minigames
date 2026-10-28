@@ -9,12 +9,12 @@ c.addEventListener('pointerdown', e => { setPointer(e); if (over && performance.
 
 function reset() {
   px = W / 2 - PW / 2; score = 0; over = false;
-  ball = { x: W / 2, y: H / 3, vx: (Math.random() < 0.5 ? -1 : 1) * 2.5, vy: 4 };
-  wait = 60;
+  ball = { x: W / 2, y: H / 3, vx: (Math.random() < 0.5 ? -1 : 1) * 3.5, vy: 6 };
+  wait = 40;
 }
 
 function update() {
-  if (pointerX !== null) px += Math.max(-12, Math.min(12, pointerX - PW / 2 - px));
+  if (pointerX !== null) px += Math.max(-22, Math.min(22, pointerX - PW / 2 - px));
   px = Math.max(WALL, Math.min(W - WALL - PW, px));
   if (over) return;
   if (wait > 0) { wait--; return; }
@@ -29,7 +29,7 @@ function update() {
   if (ball.vy > 0 && prevY + B <= PY && ball.y + B > PY && ball.x + B > px && ball.x - B < px + PW) {
     ball.y = PY - B;
     // el ángulo depende de dónde pega en la pala (hasta ~60° desde la vertical); acelera en cada golpe
-    const speed = Math.min(13, Math.hypot(ball.vx, ball.vy) * 1.04);
+    const speed = Math.min(18, Math.hypot(ball.vx, ball.vy) * 1.06);
     const a = Math.max(-1, Math.min(1, (ball.x - (px + PW / 2)) / (PW / 2))) * 1.05;
     ball.vx = speed * Math.sin(a); ball.vy = -speed * Math.cos(a);
     score++;
