@@ -1,6 +1,6 @@
 const c = document.getElementById('c'), g = c.getContext('2d');
 const W = c.width, H = c.height, GROUND = 150, FX = 50, FW = 34, FH = 46;
-const foxImg = new Image(); foxImg.src = '../assets/zorro-robot.png';
+const foxImgs = ['../assets/zorro-robot.png', '../assets/zorro-robot2.png'].map(src => { const i = new Image(); i.src = src; return i; });
 let fox, obs, speed, score, best = loadBest('zorro'), over, overAt, started, held = false, nextGap, scroll, t = 0;
 
 function reset() {
@@ -52,9 +52,11 @@ function update() {
 }
 
 function drawFox(x, base) {
-  // robot corredor; en el suelo rebota un poco al correr
-  const bob = fox.y === 0 && started && !over ? Math.abs(Math.sin(t * 0.5)) * -2 : 0;
-  if (foxImg.complete) g.drawImage(foxImg, x - 2, base - FH + bob, 38, 47);
+  // robot corredor: alterna las piernas mientras corre en el suelo; en el aire o parado, una sola pose
+  const running = fox.y === 0 && started && !over;
+  const img = foxImgs[running && Math.floor(t / 6) % 2 ? 1 : 0];
+  const bob = running ? Math.abs(Math.sin(t * 0.52)) * -2 : 0;
+  if (img.complete) g.drawImage(img, x - 2, base - FH + bob, 44, 47);
 }
 
 // Estadio: gradas con público y torres de luz (lentas), vallas publicitarias y pista (a la velocidad del suelo).
