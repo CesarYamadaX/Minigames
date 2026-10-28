@@ -6,7 +6,6 @@ let fox, obs, speed, score, best = loadBest('zorro'), over, overAt, started, hel
 function reset() {
   fox = { y: 0, v: 0, jumps: 0 };   // y = altura sobre el suelo
   obs = []; speed = 5; score = 0; over = false; started = false; nextGap = 0; scroll = 0;
-  pickLights();
 }
 
 function press() {
@@ -69,8 +68,9 @@ const STAND_TOP = GROUND - 74, STAND_BOT = GROUND - 18;
 
 function wrap(v, p) { return ((v % p) + p) % p; }
 
-// Fases del día: mañana → mediodía → noche → mañana, según los puntos (cada fase dura 200 pts y
-// la transición los últimos 40). Para ver una sola fase: zorro.html?fase=manana | mediodia | noche
+// Fases del día: mañana → mediodía → noche → mañana, según los puntos (cada fase dura PHASE_LEN pts y
+// la transición los últimos FADE). Para ver una sola fase: zorro.html?fase=manana | mediodia | noche
+const PHASE_LEN = 2000, FADE = 40;
 const SUN_LOW = STAND_TOP - 2;
 const PHASES = {
   manana: { skyTop: '#6f8fd0', skyBot: '#ffc9a0', pole: '#8a8fa8', head: '#e8e2e0', lamp: '#fff6c2', stand: '#4a4560', roof: '#a397b0',
@@ -98,21 +98,21 @@ function blend(A, B, k) {
 }
 function currentPhase() {
   if (FORCED) return PHASES[FORCED];
-  const c = score % 600, i = Math.floor(c / 200), within = c - i * 200;
-  const k = within < 160 ? 0 : (v => v * v * (3 - 2 * v))((within - 160) / 40);
+  const c = score % (PHASE_LEN * 3), i = Math.floor(c / PHASE_LEN), within = c - i * PHASE_LEN;
+  const k = within < PHASE_LEN - FADE ? 0 : (v => v * v * (3 - 2 * v))((within - (PHASE_LEN - FADE)) / FADE);
   return blend(PHASES[ORDER[i]], PHASES[ORDER[(i + 1) % 3]], k);
 }
 const nightStars = Array.from({ length: 40 }, ((r) => () => ({ x: r() * W, y: r() * (STAND_TOP - 10), s: 0.6 + r() * 1.2, p: r() * 6 }))(seeded(17)));
 const towerX = [90, 450];
 
 // Puntos de colores en las gradas: cuántos lugares se ven ocupados.
-// Cada partida elige un nivel al azar; para fijarlo: zorro.html?luces=minimas | pocas | intermedias | todas
+// Empieza en mínimas y sube un nivel con cada fase hasta todas; para fijarlo: zorro.html?luces=minimas | pocas | intermedias | todas
 const CROWD_LEVELS = { minimas: 0.08, pocas: 0.25, intermedias: 0.6, todas: 1 };
 const FORCED_LIGHTS = (location.search.match(/[?&]luces=(minimas|pocas|intermedias|todas)\b/) || [])[1];
 let crowdFrac;
-function pickLights() {
+function currentCrowd() {
   const names = Object.keys(CROWD_LEVELS);
-  crowdFrac = CROWD_LEVELS[FORCED_LIGHTS || names[Math.floor(Math.random() * names.length)]];
+  return CROWD_LEVELS[FORCED_LIGHTS || names[Math.min(names.length - 1, Math.floor(score / PHASE_LEN))]];
 }
 
 function drawStadium(P) {
@@ -250,6 +250,7 @@ function drawObstacle(o) {
 
 function draw() {
   const P = currentPhase();
+  crowdFrac = currentCrowd();
   drawStadium(P);
   drawTrack(P);
   for (const o of obs) drawObstacle(o);

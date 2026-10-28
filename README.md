@@ -5,7 +5,7 @@ Colección de minijuegos de navegador en HTML, CSS y JavaScript puros (sin depen
 - **Vuelo en el Cañón**: clic o toque para subir la avioneta entre columnas de roca; el hueco se cierra con los puntos.
 - **Pong**: un jugador; mueve la pala con el ratón o el dedo y devuelve la pelota contra el techo y las paredes. Cada golpe suma un punto y la acelera.
 - **Submarino**: mueve el ratón o el dedo arriba y abajo para pasar entre rocas; desde 5 puntos los huecos se mueven.
-- **Robot Veloz**: clic o toque para saltar las vallas en la pista; mantén pulsado para saltar más alto y haz clic en el aire para doble salto. El estadio pasa por mañana, mediodía y noche conforme sumas puntos. Cada partida tiene mínimas, pocas, intermedias o todas las luces de colores en las gradas. Para fijar una variante: `zorro.html?fase=manana|mediodia|noche&luces=minimas|pocas|intermedias|todas`.
+- **Robot Veloz**: clic o toque para saltar las vallas en la pista; mantén pulsado para saltar más alto y haz clic en el aire para doble salto. El estadio pasa por mañana, mediodía y noche cada 2000 puntos, y el público en las gradas crece con cada fase: mínimas, pocas, intermedias y todas. Para fijar una variante: `zorro.html?fase=manana|mediodia|noche&luces=minimas|pocas|intermedias|todas`.
 
 Cada juego guarda tu récord en el navegador y corre a la misma velocidad en cualquier monitor.
 
