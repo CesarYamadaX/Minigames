@@ -57,34 +57,87 @@ function drawFox(x, base) {
   if (foxImg.complete) g.drawImage(foxImg, x - 2, base - FH + bob, 38, 47);
 }
 
+// Ciudad futurista: dos capas de edificios que se desplazan a distinta velocidad.
+function makeCity(seed, minH, maxH) {
+  const r = seeded(seed), b = []; let x = 0;
+  while (x < W + 200) {
+    const w = 24 + r() * 34, h = minH + r() * (maxH - minH);
+    b.push({ x, w, h, win: Array.from({ length: 9 }, r) });
+    x += w + r() * 6;
+  }
+  return { b, P: x };
+}
+const cityFar = makeCity(11, 34, 90), cityNear = makeCity(23, 30, 64);
+const stars = Array.from({ length: 28 }, ((r) => () => ({ x: r() * W, y: r() * 70, s: 0.5 + r() * 1.2 }))(seeded(5)));
+
+function drawCity(city, factor, color, windows) {
+  const off = -((scroll * factor) % city.P);
+  g.fillStyle = color;
+  for (let k = 0; k < 2; k++) for (const b of city.b) {
+    const bx = b.x + off + k * city.P;
+    if (bx > W || bx + b.w < 0) continue;
+    g.fillRect(bx, GROUND - b.h, b.w, b.h);
+    if (!windows) continue;
+    g.fillStyle = 'rgba(255,207,106,0.85)';
+    for (let i = 0; i < 9; i++) if (b.win[i] > 0.55) g.fillRect(bx + 5 + (i % 3) * ((b.w - 12) / 3), GROUND - b.h + 6 + Math.floor(i / 3) * 10, 3, 4);
+    g.fillStyle = color;
+  }
+}
+
+function drawFloor() {
+  g.fillStyle = '#171722'; g.fillRect(0, GROUND, W, H - GROUND);
+  g.save(); g.shadowColor = '#e5252a'; g.shadowBlur = 10;
+  g.fillStyle = '#e5252a'; g.fillRect(0, GROUND, W, 3);
+  g.restore();
+  g.fillStyle = 'rgba(255,255,255,0.45)';
+  for (let i = 0; i < 12; i++) g.fillRect(((i * 60 - scroll) % (W + 60) + W + 60) % (W + 60) - 30, GROUND + 18, 28, 3);
+}
+
+function drawObstacle(o) {
+  const x = o.x, y = GROUND - o.h;
+  if (o.kind === 'roca') {
+    // barrera con franjas de peligro
+    g.fillStyle = '#2b2f40';
+    g.beginPath(); g.moveTo(x, GROUND); g.lineTo(x + 3, y); g.lineTo(x + o.w - 3, y); g.lineTo(x + o.w, GROUND); g.fill();
+    g.save(); g.beginPath(); g.rect(x + 3, y + 5, o.w - 6, Math.min(8, o.h - 8)); g.clip();
+    g.fillStyle = '#ffc928'; g.fillRect(x, y, o.w, o.h);
+    g.fillStyle = '#1b1c26';
+    for (let i = -2; i < o.w / 8 + 2; i++) { g.beginPath(); g.moveTo(x + i * 10, y + 14); g.lineTo(x + i * 10 + 5, y + 14); g.lineTo(x + i * 10 + 13, y); g.lineTo(x + i * 10 + 8, y); g.fill(); }
+    g.restore();
+    g.fillStyle = '#4a5068'; g.fillRect(x + 3, y, o.w - 6, 2);
+  } else {
+    // torre con luz roja intermitente
+    g.fillStyle = '#2b2f40'; g.fillRect(x, y, o.w, o.h);
+    g.fillStyle = '#3d4258'; g.fillRect(x, y, 3, o.h);
+    g.fillStyle = '#1b1c26';
+    for (let yy = y + 10; yy < GROUND - 4; yy += 10) g.fillRect(x + 4, yy, o.w - 8, 2);
+    const on = Math.floor(t / 20) % 2 === 0;
+    g.save(); if (on) { g.shadowColor = '#e5252a'; g.shadowBlur = 12; }
+    g.fillStyle = on ? '#ff4b4f' : '#7a2326'; g.beginPath(); g.arc(x + o.w / 2, y - 3, 4, 0, Math.PI * 2); g.fill();
+    g.restore();
+  }
+}
+
 function draw() {
   const sky = g.createLinearGradient(0, 0, 0, GROUND);
-  sky.addColorStop(0, '#ff9a76'); sky.addColorStop(1, '#ffe2b8');
+  sky.addColorStop(0, '#150d33'); sky.addColorStop(0.55, '#6a1f5c'); sky.addColorStop(1, '#ff6a3d');
   g.fillStyle = sky; g.fillRect(0, 0, W, GROUND);
-  g.fillStyle = '#fff3c4'; g.beginPath(); g.arc(470, 70, 26, 0, Math.PI * 2); g.fill();
-  // colinas al fondo, se mueven más lento que el suelo
-  const hx = scroll * 0.2;
-  g.fillStyle = '#d9876a'; g.beginPath(); g.moveTo(0, GROUND);
-  for (let x = 0; x <= W; x += 10) g.lineTo(x, GROUND - 30 - Math.sin((x + hx) / 60) * 12 - Math.sin((x + hx) / 23) * 5);
-  g.lineTo(W, GROUND); g.fill();
-  g.fillStyle = '#8d6e63'; g.fillRect(0, GROUND, W, H - GROUND);
-  g.fillStyle = '#6d4c41';
-  for (let i = 0; i < 16; i++) g.fillRect(((i * 40 - scroll) % W + W) % W, GROUND + 8 + (i % 3) * 6, 10, 2);
-
-  for (const o of obs) {
-    if (o.kind === 'roca') {
-      g.fillStyle = '#78909c';
-      g.beginPath(); g.ellipse(o.x + o.w / 2, GROUND, o.w / 2, o.h, 0, Math.PI, 0); g.fill();
-    } else {
-      g.fillStyle = '#5d4037'; g.fillRect(o.x, GROUND - o.h, o.w, o.h);
-      g.fillStyle = '#a1887f'; g.fillRect(o.x + 3, GROUND - o.h, o.w - 6, 4);
-    }
-  }
+  g.fillStyle = 'rgba(255,255,255,0.7)';
+  for (const s of stars) g.fillRect(s.x, s.y, s.s, s.s);
+  const sun = g.createRadialGradient(470, GROUND - 34, 4, 470, GROUND - 34, 44);
+  sun.addColorStop(0, '#ffe08a'); sun.addColorStop(1, '#ff7a45');
+  g.save(); g.beginPath(); g.rect(0, 0, W, GROUND); g.clip();
+  g.fillStyle = sun; g.beginPath(); g.arc(470, GROUND - 34, 44, 0, Math.PI * 2); g.fill();
+  g.restore();
+  drawCity(cityFar, 0.12, '#3a1650', false);
+  drawCity(cityNear, 0.3, '#201233', true);
+  drawFloor();
+  for (const o of obs) drawObstacle(o);
   drawFox(FX, GROUND - fox.y);
 
-  g.fillStyle = '#4e342e'; g.font = '16px monospace'; g.textAlign = 'right';
+  g.fillStyle = '#fff'; g.font = '16px monospace'; g.textAlign = 'right';
   g.fillText('REC ' + String(best).padStart(5, '0') + '   ' + String(Math.floor(score)).padStart(5, '0'), W - 10, 24);
-  if (!started) drawMessage(g, 'Zorro Veloz', 'Haz clic para empezar');
+  if (!started) drawMessage(g, 'Robot Veloz', 'Haz clic para empezar');
   if (over) drawMessage(g, '¡Tropezaste! ' + Math.floor(score) + ' pts', 'Haz clic para jugar otra vez');
 }
 

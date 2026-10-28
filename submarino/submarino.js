@@ -50,9 +50,52 @@ function update() {
   cols = cols.filter(p => p.x > -CW);
 }
 
+// Fondo marino: peces y relieve lejano que se mueven más lento que las rocas.
+const rnd = seeded(3);
+const fish = Array.from({ length: 6 }, () => ({ y: 60 + rnd() * (H - 160), s: 0.4 + rnd() * 0.6, sz: 5 + rnd() * 4, ph: rnd() * (W + 80) }));
+
+function drawBackground() {
+  const sea = g.createLinearGradient(0, 0, 0, H);
+  sea.addColorStop(0, '#2a8fd6'); sea.addColorStop(0.5, '#145a9e'); sea.addColorStop(1, '#07203f');
+  g.fillStyle = sea; g.fillRect(0, 0, W, H);
+  // rayos de luz que se balancean
+  for (let i = 0; i < 4; i++) {
+    const x0 = i * W / 3 - 20 + Math.sin(frame / 90 + i * 1.7) * 22;
+    const ray = g.createLinearGradient(0, 0, 0, H * 0.8);
+    ray.addColorStop(0, 'rgba(255,255,255,0.13)'); ray.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = ray;
+    g.beginPath(); g.moveTo(x0, 0); g.lineTo(x0 + 34, 0); g.lineTo(x0 + 120, H * 0.8); g.lineTo(x0 + 60, H * 0.8); g.fill();
+  }
+  // lomas del fondo
+  g.fillStyle = '#0a2c52'; g.beginPath(); g.moveTo(0, H);
+  for (let x = 0; x <= W; x += 8) g.lineTo(x, H - 34 - Math.sin((x + frame * 0.6) / 41) * 10 - Math.sin((x + frame * 0.6) / 97) * 14);
+  g.lineTo(W, H); g.fill();
+  // peces lejanos
+  g.fillStyle = 'rgba(180,225,255,0.35)';
+  for (const f of fish) {
+    const x = ((f.ph - frame * (0.5 + f.s)) % (W + 80) + W + 80) % (W + 80) - 40;
+    g.beginPath(); g.ellipse(x, f.y, f.sz * 1.6, f.sz, 0, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.moveTo(x + f.sz * 1.4, f.y); g.lineTo(x + f.sz * 2.6, f.y - f.sz * 0.8); g.lineTo(x + f.sz * 2.6, f.y + f.sz * 0.8); g.fill();
+  }
+}
+
+// y/h: la roca; algaeY: el borde con algas (abajo en la roca del techo, arriba en la del suelo)
 function drawRock(x, y, h, algaeY) {
-  g.fillStyle = '#37474f'; g.fillRect(x, y, CW, h);
-  g.fillStyle = '#66bb6a'; g.fillRect(x - 3, algaeY - 3, CW + 6, 6);
+  const isTop = algaeY === y + h;
+  const grad = g.createLinearGradient(x, 0, x + CW, 0);
+  grad.addColorStop(0, '#2c4653'); grad.addColorStop(0.5, '#4b6a78'); grad.addColorStop(1, '#233a46');
+  g.fillStyle = grad; g.fillRect(x, y, CW, h);
+  g.fillStyle = 'rgba(0,0,0,0.18)';
+  for (let i = 0; i < 4; i++) g.fillRect(x + 6 + (i * 13) % 34, y + 14 + i * 47 % Math.max(20, h - 20), 6, 3);
+  g.fillStyle = 'rgba(255,255,255,0.12)'; g.fillRect(x, y, 3, h);
+  // algas
+  g.fillStyle = '#43a047'; g.fillRect(x - 3, algaeY - 3, CW + 6, 6);
+  g.strokeStyle = '#66bb6a'; g.lineWidth = 3; g.lineCap = 'round';
+  const dir = isTop ? 1 : -1;
+  for (let i = 0; i < 5; i++) {
+    const bx = x + 4 + i * 10, len = 12 + (i % 3) * 5, sway = Math.sin(frame / 14 + i) * 4;
+    g.beginPath(); g.moveTo(bx, algaeY); g.quadraticCurveTo(bx + sway, algaeY + dir * len * 0.5, bx - sway, algaeY + dir * len); g.stroke();
+  }
 }
 
 function drawSub(x, y) {
@@ -63,9 +106,7 @@ function drawSub(x, y) {
 }
 
 function draw() {
-  const sea = g.createLinearGradient(0, 0, 0, H);
-  sea.addColorStop(0, '#1565c0'); sea.addColorStop(1, '#0d2a5c');
-  g.fillStyle = sea; g.fillRect(0, 0, W, H);
+  drawBackground();
   g.fillStyle = 'rgba(255,255,255,0.5)';
   for (const b of bubbles) { g.beginPath(); g.arc(b.x, b.y, b.r, 0, Math.PI * 2); g.fill(); }
   for (const p of cols) {

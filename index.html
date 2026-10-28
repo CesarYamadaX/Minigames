@@ -7,12 +7,25 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>Minijuegos</h1>
+<h1>Mini<span>juegos</span></h1>
+<p class="tagline">Elige un juego y rompe tu récord.</p>
 <div class="menu">
-  <a class="card" href="cueva/cueva.html">🦇 Vuelo en la Cueva<small>Récord: <span id="cueva">0</span></small></a>
-  <a class="card" href="pong/pong.html">🏓 Pong<small>Récord: <span id="pong">0</span></small></a>
-  <a class="card" href="submarino/submarino.html">🚢 Submarino<small>Récord: <span id="submarino">0</span></small></a>
-  <a class="card" href="zorro/zorro.html">🦊 Zorro Veloz<small>Récord: <span id="zorro">0</span></small></a>
+  <a class="card" href="cueva/cueva.html">
+    <div class="thumb cueva"><img src="assets/cueva-avioneta.png" alt=""></div>
+    <div class="info"><b>Vuelo en el Cañón</b><span>Esquiva las columnas de roca</span><small>Récord: <span id="cueva" style="display:inline;margin:0;color:inherit;font-size:inherit">0</span></small></div>
+  </a>
+  <a class="card" href="pong/pong.html">
+    <div class="thumb pong"><img src="assets/pong-celular.png" alt=""></div>
+    <div class="info"><b>Pong</b><span>Devuelve la pelota al techo</span><small>Récord: <span id="pong" style="display:inline;margin:0;color:inherit;font-size:inherit">0</span></small></div>
+  </a>
+  <a class="card" href="submarino/submarino.html">
+    <div class="thumb submarino"><img src="assets/submarino.png" alt=""></div>
+    <div class="info"><b>Submarino</b><span>Pasa entre las rocas del fondo</span><small>Récord: <span id="submarino" style="display:inline;margin:0;color:inherit;font-size:inherit">0</span></small></div>
+  </a>
+  <a class="card" href="zorro/zorro.html">
+    <div class="thumb zorro"><img src="assets/zorro-robot.png" alt=""></div>
+    <div class="info"><b>Robot Veloz</b><span>Salta barreras y torres</span><small>Récord: <span id="zorro" style="display:inline;margin:0;color:inherit;font-size:inherit">0</span></small></div>
+  </a>
 </div>
 <script src="common.js"></script>
 <script>
