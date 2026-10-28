@@ -2,7 +2,7 @@
 
 Colección de minijuegos de navegador en HTML, CSS y JavaScript puros (sin dependencias ni build).
 
-- **Vuelo en el Cañón**: clic o toque para subir la avioneta entre columnas de roca; el hueco se cierra con los puntos. Desde el mediodía pasan nubes por delante que tapan cada vez más la pantalla. El cielo pasa por mañana, mediodía y noche conforme avanzas (para ver una sola fase: `canon/canon.html?fase=manana`, `mediodia` o `noche`).
+- **Vuelo en el Cañón**: clic o toque para subir la avioneta entre columnas de roca; el hueco se cierra con los puntos. El cielo es de mañana hasta los 20 puntos, de mediodía hasta los 70 y de noche desde ahí. Desde el mediodía pasan nubes por delante que tapan cada vez más la pantalla (para ver una sola fase: `canon/canon.html?fase=manana`, `mediodia` o `noche`).
 - **Pong**: un jugador; mueve la pala con el ratón o el dedo y devuelve la pelota contra el techo y las paredes. Cada golpe suma un punto y la acelera.
 - **Submarino**: mueve el ratón o el dedo arriba y abajo para pasar entre rocas; desde 5 puntos los huecos se mueven.
 - **Robot Veloz**: clic o toque para saltar las vallas en la pista; mantén pulsado para saltar más alto y haz clic en el aire para doble salto. El estadio pasa por mañana, mediodía y noche cada 2000 puntos, y el público en las gradas crece con cada día completo, al volver a la mañana: mínimas, pocas, intermedias y todas. Para fijar una variante: `robot/robot.html?fase=manana|mediodia|noche&luces=minimas|pocas|intermedias|todas`.
