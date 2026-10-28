@@ -49,12 +49,12 @@ function update() {
 // Fases del día según los puntos: mañana hasta DUSK_AT, atardecer hasta NIGHT_AT y luego noche para
 // siempre; cada cambio dura FADE puntos. Para ver una sola fase: canon.html?fase=manana | atardecer | noche
 const PHASES = {
-  atardecer: { skyTop: '#6f8fd0', skyMid: '#f2a7a0', skyBot: '#ffd9a8', mesaFar: '#c47a86', mesaNear: '#9a5470',
-    rockLight: '#d0703f', rock: '#a6482f', rockShadow: '#62292a', sunX: W * 0.72, sunY: H * 0.72, sunR: 24, sunIn: '#fff1c4', sunOut: '#ffb067', sunA: 1, cloudA: 0.95, night: 0 },
-  manana: { skyTop: '#3f9de6', skyMid: '#7cc4f2', skyBot: '#cfeeff', mesaFar: '#d7956c', mesaNear: '#b56c4a',
-    rockLight: '#d47a48', rock: '#ad5434', rockShadow: '#6b2e25', sunX: W * 0.72, sunY: 80, sunR: 16, sunIn: '#ffffff', sunOut: '#fff3b0', sunA: 1, cloudA: 1, night: 0 },
-  noche: { skyTop: '#050819', skyMid: '#121b42', skyBot: '#26315f', mesaFar: '#2a2f55', mesaNear: '#1c1f3d',
-    rockLight: '#5e3f45', rock: '#46303a', rockShadow: '#24182a', sunX: W * 1.1, sunY: H * 0.72, sunR: 24, sunIn: '#ffd9a0', sunOut: '#ff8a50', sunA: 0, cloudA: 0.28, night: 1 },
+  atardecer: { skyTop: '#6f8fd0', skyMid: '#f2a7a0', skyBot: '#ffd9a8', mesaFar: '#a3a1b0', mesaNear: '#807e8e',
+    rockLight: '#b8b6c0', rock: '#8f8d99', rockShadow: '#55535f', sunX: W * 0.72, sunY: H * 0.72, sunR: 24, sunIn: '#fff1c4', sunOut: '#ffb067', sunA: 1, cloudA: 0.95, night: 0 },
+  manana: { skyTop: '#3f9de6', skyMid: '#7cc4f2', skyBot: '#cfeeff', mesaFar: '#aab1bc', mesaNear: '#8a919c',
+    rockLight: '#c4c9d1', rock: '#9ba1ab', rockShadow: '#5f6570', sunX: W * 0.72, sunY: 80, sunR: 16, sunIn: '#ffffff', sunOut: '#fff3b0', sunA: 1, cloudA: 1, night: 0 },
+  noche: { skyTop: '#050819', skyMid: '#121b42', skyBot: '#26315f', mesaFar: '#2e3242', mesaNear: '#212432',
+    rockLight: '#4f5363', rock: '#3b3e4b', rockShadow: '#22242e', sunX: W * 1.1, sunY: H * 0.72, sunR: 24, sunIn: '#ffd9a0', sunOut: '#ff8a50', sunA: 0, cloudA: 0.28, night: 1 },
 };
 const DUSK_AT = 20, NIGHT_AT = 70, FADE = 2;
 const FORCED = (location.search.match(/[?&]fase=(manana|atardecer|noche)\b/) || [])[1];
@@ -174,9 +174,9 @@ function drawRock(x, edge, dir) {
   g.lineTo(x + CW, far);
   g.fill();
   g.save(); g.clip();
-  g.strokeStyle = 'rgba(55,18,24,0.35)'; g.lineWidth = 2;
+  g.strokeStyle = 'rgba(20,22,30,0.3)'; g.lineWidth = 2;
   for (let y = 10; y < H; y += 22) { g.beginPath(); g.moveTo(x, y); g.lineTo(x + CW, y + 4); g.stroke(); }
-  g.fillStyle = 'rgba(255,205,160,0.28)';
+  g.fillStyle = 'rgba(255,255,255,0.22)';
   g.fillRect(x, Math.min(far, edge), 4, H);
   g.restore();
 }
