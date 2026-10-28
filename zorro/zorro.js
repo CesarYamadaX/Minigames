@@ -74,13 +74,13 @@ function wrap(v, p) { return ((v % p) + p) % p; }
 const SUN_LOW = STAND_TOP - 2;
 const PHASES = {
   manana: { skyTop: '#6f8fd0', skyBot: '#ffc9a0', pole: '#8a8fa8', head: '#e8e2e0', lamp: '#fff6c2', stand: '#4a4560', roof: '#a397b0',
-    trackTop: '#c0472e', trackBot: '#d8603e', lane: '#fbf3ea', cloud: '#ffe3d6', cloudA: 0.75, dim: 0.12, night: 0, beam: 0.4,
+    wall: '#8e8f97', trackTop: '#c0472e', trackBot: '#d8603e', lane: '#fbf3ea', cloud: '#ffe3d6', cloudA: 0.75, dim: 0.12, night: 0, beam: 0.4,
     sunX: 130, sunY: SUN_LOW, sunR: 22, sunIn: '#fff1c4', sunOut: '#ffb067', sunA: 1 },
   mediodia: { skyTop: '#5fb6ee', skyBot: '#d6f0ff', pole: '#7d8aa6', head: '#e8edf7', lamp: '#fff6c2', stand: '#3b4660', roof: '#8b97b3',
-    trackTop: '#b8402a', trackBot: '#d4593a', lane: '#f2f3f7', cloud: '#ffffff', cloudA: 0.7, dim: 0, night: 0, beam: 0,
+    wall: '#8c919b', trackTop: '#b8402a', trackBot: '#d4593a', lane: '#f2f3f7', cloud: '#ffffff', cloudA: 0.7, dim: 0, night: 0, beam: 0,
     sunX: 250, sunY: 30, sunR: 13, sunIn: '#ffffff', sunOut: '#fff3b0', sunA: 1 },
   noche: { skyTop: '#070b22', skyBot: '#1d2b5a', pole: '#3a4460', head: '#9aa6c4', lamp: '#ffffff', stand: '#1a2034', roof: '#3a4460',
-    trackTop: '#5a2420', trackBot: '#6e2c22', lane: '#b9bfd0', cloud: '#c8d0e8', cloudA: 0.15, dim: 0.5, night: 1, beam: 1,
+    wall: '#454a55', trackTop: '#5a2420', trackBot: '#6e2c22', lane: '#b9bfd0', cloud: '#c8d0e8', cloudA: 0.15, dim: 0.5, night: 1, beam: 1,
     sunX: 600, sunY: SUN_LOW, sunR: 22, sunIn: '#ffd9a0', sunOut: '#ff8a50', sunA: 0 },
 };
 const ORDER = ['manana', 'mediodia', 'noche'];
@@ -190,16 +190,12 @@ function drawStadium(P) {
 
 function drawTrack(P) {
   const n = P.night;
-  // vallas publicitarias (de noche son pantallas encendidas)
-  const bo = -wrap(scroll, 160);
-  g.save();
-  if (n > 0) { g.shadowColor = '#e5252a'; g.shadowBlur = 10 * n; }
-  for (let x = bo - 160; x < W + 160; x += 80) {
-    const red = Math.round((x - bo) / 80) % 2 === 0;
-    g.fillStyle = red ? '#e5252a' : '#f2f3f7'; g.fillRect(x, GROUND - 16, 80, 15);
-    g.fillStyle = red ? '#f2f3f7' : '#e5252a'; g.fillRect(x + 10, GROUND - 11, 60, 5);
-  }
-  g.restore();
+  // muro gris entre las gradas y la pista, con juntas cada 80px
+  g.fillStyle = P.wall; g.fillRect(0, GROUND - 16, W, 15);
+  g.fillStyle = 'rgba(255,255,255,0.18)'; g.fillRect(0, GROUND - 16, W, 1);
+  g.fillStyle = 'rgba(0,0,0,0.18)';
+  const bo = -wrap(scroll, 80);
+  for (let x = bo; x < W; x += 80) g.fillRect(x, GROUND - 15, 1, 14);
   g.fillStyle = '#1b1c26'; g.fillRect(0, GROUND - 1, W, 1);
   // pista
   const tr = g.createLinearGradient(0, GROUND, 0, H);
@@ -234,7 +230,7 @@ function drawFloodlight(n) {
 }
 
 function drawObstacle(o) {
-  // valla de atletismo: tabla amarilla con soportes negros, postes azules con la parte baja plateada y base de tubo plateado
+  // valla de atletismo: tabla blanca con soportes negros, postes azules con la parte baja plateada y base de tubo plateado
   const x = o.x, top = FEET - o.h, w = o.w;
   const metalY = FEET - Math.min(12, o.h * 0.35);   // donde el poste pasa de azul a plateado
   // sombra sobre la pista
@@ -254,8 +250,8 @@ function drawObstacle(o) {
   g.fillStyle = '#23242e'; g.fillRect(x - 1, FEET - 4.5, 3, 5); g.fillRect(x + w - 2, FEET - 4.5, 3, 5);
   // tabla blanca con contorno gris y soportes negros
   g.fillStyle = '#5a6070'; g.fillRect(x - 3, top - 1, w + 6, 8);
-  g.fillStyle = '#ffd23f'; g.fillRect(x - 2, top, w + 4, 6);
-  g.fillStyle = '#e0a800'; g.fillRect(x - 2, top + 4, w + 4, 2);
+  g.fillStyle = '#ffffff'; g.fillRect(x - 2, top, w + 4, 6);
+  g.fillStyle = '#d7dbe3'; g.fillRect(x - 2, top + 4, w + 4, 2);
   g.fillStyle = '#23242e'; g.fillRect(x + 1, top - 1, 5, 9); g.fillRect(x + w - 6, top - 1, 5, 9);
 }
 
