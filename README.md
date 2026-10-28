@@ -24,6 +24,6 @@ Abre `index.html` en tu navegador y elige un juego. En cada uno, el enlace "← 
 | `robot/` | Página (`robot.html`) y código (`robot.js`) de Robot Veloz |
 | `common.js` | Código compartido: bucle de juego, récords y mensajes en pantalla |
 | `style.css` | Estilos de todas las páginas |
-| `assets/` | Sprites de los personajes (robot, avioneta, celular, submarino) nubes de Vuelo en el Cañón y animales marinos de Submarino |
+| `assets/` | Sprites de los personajes (robot, avioneta, celular, submarino), nubes de Vuelo en el Cañón y animales marinos de Submarino |
 
 Para cambiar un juego, edita el `.js` de su carpeta y recarga la página en el navegador. Las constantes al inicio de cada archivo (tamaños, posiciones) y los números dentro de `update()` (gravedad, velocidad, fuerza del salto) son lo más fácil de ajustar.
