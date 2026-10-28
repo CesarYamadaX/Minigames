@@ -234,18 +234,29 @@ function drawFloodlight(n) {
 }
 
 function drawObstacle(o) {
-  // valla: dos postes y barras rojas y blancas; la alta lleva una segunda barra
-  const x = o.x, y = FEET - o.h;
-  g.fillStyle = '#e8edf7';
-  g.fillRect(x + 1, y, 3, o.h); g.fillRect(x + o.w - 4, y, 3, o.h);
-  g.fillStyle = '#1b1c26'; g.fillRect(x - 1, FEET - 3, 7, 3); g.fillRect(x + o.w - 6, FEET - 3, 7, 3);
-  for (const by of o.kind === 'roca' ? [y] : [y, y + o.h * 0.5]) {
-    for (let sx = 0; sx < o.w; sx += 8) {
-      g.fillStyle = (sx / 8) % 2 === 0 ? '#e5252a' : '#f2f3f7';
-      g.fillRect(x + sx, by, Math.min(8, o.w - sx), 7);
-    }
-    g.strokeStyle = '#1b1c26'; g.lineWidth = 1; g.strokeRect(x + 0.5, by + 0.5, o.w - 1, 6);
+  // valla de atletismo: tabla blanca con soportes negros, postes azules con la parte baja plateada y base de tubo plateado
+  const x = o.x, top = FEET - o.h, w = o.w;
+  const metalY = FEET - Math.min(12, o.h * 0.35);   // donde el poste pasa de azul a plateado
+  // sombra sobre la pista
+  g.fillStyle = 'rgba(0,0,0,0.22)';
+  g.beginPath(); g.ellipse(x + w / 2 + 3, FEET + 1, w / 2 + 4, 3, 0, 0, Math.PI * 2); g.fill();
+  // postes
+  for (const px of [x + 2, x + w - 5]) {
+    g.fillStyle = '#1f3fa8'; g.fillRect(px, top + 4, 3, metalY - top - 4);
+    g.fillStyle = '#3d6cf0'; g.fillRect(px, top + 4, 1.5, metalY - top - 4);
+    g.fillStyle = '#c9ced8'; g.fillRect(px, metalY, 3, FEET - metalY - 3);
+    g.fillStyle = '#eef1f6'; g.fillRect(px, metalY, 1.5, FEET - metalY - 3);
   }
+  // base: tubo plateado con tapas oscuras
+  g.fillStyle = '#5a6070'; g.fillRect(x - 1, FEET - 4.5, w + 2, 5);
+  g.fillStyle = '#d9dde5'; g.fillRect(x + 1, FEET - 4, w - 2, 4);
+  g.fillStyle = '#f5f7fa'; g.fillRect(x + 1, FEET - 4, w - 2, 1.5);
+  g.fillStyle = '#23242e'; g.fillRect(x - 1, FEET - 4.5, 3, 5); g.fillRect(x + w - 2, FEET - 4.5, 3, 5);
+  // tabla blanca con contorno gris y soportes negros
+  g.fillStyle = '#5a6070'; g.fillRect(x - 3, top - 1, w + 6, 8);
+  g.fillStyle = '#ffffff'; g.fillRect(x - 2, top, w + 4, 6);
+  g.fillStyle = '#d7dbe3'; g.fillRect(x - 2, top + 4, w + 4, 2);
+  g.fillStyle = '#23242e'; g.fillRect(x + 1, top - 1, 5, 9); g.fillRect(x + w - 6, top - 1, 5, 9);
 }
 
 function draw() {
