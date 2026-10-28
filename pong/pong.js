@@ -45,17 +45,16 @@ function draw() {
   const bg = g.createRadialGradient(W / 2, H * 0.4, 40, W / 2, H * 0.4, H * 0.85);
   bg.addColorStop(0, '#1d1e28'); bg.addColorStop(1, '#09090e');
   g.fillStyle = bg; g.fillRect(0, 0, W, H);
-  // cuadrícula tenue, círculo central y línea de media cancha
+  // cuadrícula tenue y línea de media cancha
   g.strokeStyle = 'rgba(255,255,255,0.045)'; g.lineWidth = 1;
   for (let x = WALL + 30; x < W - WALL; x += 30) { g.beginPath(); g.moveTo(x, WALL); g.lineTo(x, H); g.stroke(); }
   for (let y = WALL + 30; y < H; y += 30) { g.beginPath(); g.moveTo(WALL, y); g.lineTo(W - WALL, y); g.stroke(); }
   g.strokeStyle = 'rgba(229,37,42,0.28)'; g.lineWidth = 2;
-  g.beginPath(); g.arc(W / 2, H / 2, 60, 0, Math.PI * 2); g.stroke();
   g.setLineDash([10, 10]); g.beginPath(); g.moveTo(WALL, H / 2); g.lineTo(W - WALL, H / 2); g.stroke(); g.setLineDash([]);
-  // logo de HONOR en el centro de la cancha, tenue para no distraer de la pelota
+  // círculo central: el símbolo de HONOR, del mismo tamaño que el círculo de antes (120px)
   if (logoImg.complete) {
-    const lh = 104, lw = lh * logoImg.width / logoImg.height;
-    g.save(); g.globalAlpha = 0.22; g.drawImage(logoImg, W / 2 - lw / 2, H / 2 - lh / 2, lw, lh); g.restore();
+    const ld = 120, lw = ld * logoImg.width / logoImg.height;
+    g.save(); g.globalAlpha = 0.3; g.drawImage(logoImg, W / 2 - lw / 2, H / 2 - ld / 2, lw, ld); g.restore();
   }
   // paredes rojas con brillo
   g.save(); g.shadowColor = '#e5252a'; g.shadowBlur = 14; g.fillStyle = '#e5252a';
