@@ -88,6 +88,7 @@ function fogDensity() {
   const c = bgx % (PHASE_LEN * 3), i = Math.floor(c / PHASE_LEN), within = (c - i * PHASE_LEN) / PHASE_LEN;
   if (i === 0) return 0;                      // mañana: cielo despejado
   if (i === 1) return 0.15 + within * 0.45;   // mediodía: de 0.15 a 0.6
+  if (within > (PHASE_LEN - FADE) / PHASE_LEN) return 0;   // amanece: ya no salen nubes
   return 0.6 + within * 0.4;                  // noche: de 0.6 a 1
 }
 function updateFog() {
@@ -95,17 +96,18 @@ function updateFog() {
   const target = Math.round(d * 14);
   if (d > 0 && fog.length < target && Math.random() < 0.04 + d * 0.1) {
     const s = 0.9 + Math.random() * (0.6 + d * 0.9);
-    fog.push({ img: Math.floor(Math.random() * 4), s, x: W + 20, y: -30 + Math.random() * (H - 30), v: 2.2 + Math.random() * 1.2 });
+    fog.push({ img: Math.floor(Math.random() * 4), s, a: 1, x: W + 20, y: -30 + Math.random() * (H - 30), v: 2.2 + Math.random() * 1.2 });
   }
-  for (const f of fog) f.x -= f.v;
-  fog = fog.filter(f => f.x > -320);
+  // sin nubes de día: al amanecer las que quedan se desvanecen en menos de un segundo
+  for (const f of fog) { f.x -= f.v; if (d === 0) f.a -= 0.025; }
+  fog = fog.filter(f => f.x > -320 && f.a > 0);
 }
 function drawFog() {
   for (const f of fog) {
     const img = cloudImgs[f.img];
     if (!img.complete) continue;
     const w = img.width / 2 * f.s, h = img.height / 2 * f.s;
-    g.save(); g.globalAlpha = 0.95;
+    g.save(); g.globalAlpha = 0.95 * f.a;
     g.drawImage(P.night > 0.5 && img.dark ? img.dark : img, f.x, f.y, w, h);
     g.restore();
   }
