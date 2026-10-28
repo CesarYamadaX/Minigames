@@ -10,9 +10,9 @@
 <h1>Mini<span>juegos</span></h1>
 <p class="tagline">Elige un juego y rompe tu récord.</p>
 <div class="menu">
-  <a class="card" href="cueva/cueva.html">
-    <div class="thumb cueva"><img src="assets/cueva-avioneta.png" alt=""></div>
-    <div class="info"><b>Vuelo en el Cañón</b><span>Esquiva las columnas de roca</span><small>Récord: <span id="cueva" style="display:inline;margin:0;color:inherit;font-size:inherit">0</span></small></div>
+  <a class="card" href="canon/canon.html">
+    <div class="thumb canon"><img src="assets/canon-avioneta.png" alt=""></div>
+    <div class="info"><b>Vuelo en el Cañón</b><span>Esquiva las columnas de roca</span><small>Récord: <span id="canon" style="display:inline;margin:0;color:inherit;font-size:inherit">0</span></small></div>
   </a>
   <a class="card" href="pong/pong.html">
     <div class="thumb pong"><img src="assets/pong-celular.png" alt=""></div>
@@ -22,14 +22,14 @@
     <div class="thumb submarino"><img src="assets/submarino.png" alt=""></div>
     <div class="info"><b>Submarino</b><span>Pasa entre las rocas del fondo</span><small>Récord: <span id="submarino" style="display:inline;margin:0;color:inherit;font-size:inherit">0</span></small></div>
   </a>
-  <a class="card" href="zorro/zorro.html">
-    <div class="thumb zorro"><img src="assets/zorro-robot.png" alt=""></div>
-    <div class="info"><b>Robot Veloz</b><span>Salta las vallas en la pista</span><small>Récord: <span id="zorro" style="display:inline;margin:0;color:inherit;font-size:inherit">0</span></small></div>
+  <a class="card" href="robot/robot.html">
+    <div class="thumb robot"><img src="assets/robot-1.png" alt=""></div>
+    <div class="info"><b>Robot Veloz</b><span>Salta las vallas en la pista</span><small>Récord: <span id="robot" style="display:inline;margin:0;color:inherit;font-size:inherit">0</span></small></div>
   </a>
 </div>
 <script src="common.js"></script>
 <script>
-for (const k of ['cueva', 'pong', 'submarino', 'zorro']) document.getElementById(k).textContent = loadBest(k);
+for (const k of ['canon', 'pong', 'submarino', 'robot']) document.getElementById(k).textContent = loadBest(k);
 </script>
 </body>
 </html>

@@ -16,10 +16,10 @@ p { max-width: 600px; text-align: center; padding: 0 16px; color: var(--muted); 
 .thumb { height: 140px; display: flex; align-items: center; justify-content: center; }
 .thumb img { max-height: 92px; max-width: 150px; filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.45)); transition: transform 0.2s; }
 .card:hover .thumb img, .card:focus-visible .thumb img { transform: scale(1.1) rotate(-3deg); }
-.thumb.cueva { background: linear-gradient(#2f2160, #d4546f 60%, #ffb878); }
+.thumb.canon { background: linear-gradient(#2f2160, #d4546f 60%, #ffb878); }
 .thumb.pong { background: radial-gradient(circle at 50% 40%, #272936, #09090e); box-shadow: inset 0 0 0 4px rgba(229, 37, 42, 0.8); }
 .thumb.submarino { background: linear-gradient(#2a8fd6, #145a9e 55%, #07203f); }
-.thumb.zorro { background: linear-gradient(#5fb6ee 0, #d6f0ff 55%, #3b4660 55%, #3b4660 72%, #c8472d 72%); }
+.thumb.robot { background: linear-gradient(#5fb6ee 0, #d6f0ff 55%, #3b4660 55%, #3b4660 72%, #c8472d 72%); }
 .info { padding: 12px 16px 16px; }
 .info b { display: block; font-size: 1.1rem; }
 .info span { display: block; margin-top: 2px; font-size: 0.85rem; color: var(--muted); }

@@ -1,7 +1,7 @@
 const c = document.getElementById('c'), g = c.getContext('2d');
 const W = c.width, H = c.height, GROUND = 150, FX = 50, FW = 34, FH = 46;
-const foxImgs = ['zorro-robot', 'zorro-robot-2', 'zorro-robot-3', 'zorro-robot-4'].map(n => '../assets/' + n + '.png').map(src => { const i = new Image(); i.src = src; return i; });
-let fox, obs, speed, score, best = loadBest('zorro'), over, overAt, started, held = false, nextGap, scroll, t = 0;
+const foxImgs = ['robot-1', 'robot-2', 'robot-3', 'robot-4'].map(n => '../assets/' + n + '.png').map(src => { const i = new Image(); i.src = src; return i; });
+let fox, obs, speed, score, best = loadBest('robot'), over, overAt, started, held = false, nextGap, scroll, t = 0;
 
 function reset() {
   fox = { y: 0, v: 0, jumps: 0 };   // y = altura sobre el suelo
@@ -31,7 +31,7 @@ function spawn() {
 function update() {
   t++;
   if (!started || over) return;
-  // gravedad menor mientras se mantiene el botón y el zorro sube
+  // gravedad menor mientras se mantiene el botón y el robot sube
   fox.v -= held && fox.v > 0 ? 0.45 : 0.9;
   fox.y += fox.v;
   if (fox.y <= 0) { fox.y = 0; fox.v = 0; fox.jumps = 0; }
@@ -42,7 +42,7 @@ function update() {
     o.x -= speed;
     if (FX + FW - 4 > o.x + 3 && FX + 4 < o.x + o.w - 3 && fox.y < o.h - 3) {
       over = true; overAt = performance.now();
-      if (Math.floor(score) > best) { best = Math.floor(score); saveBest('zorro', best); }
+      if (Math.floor(score) > best) { best = Math.floor(score); saveBest('robot', best); }
     }
   }
   obs = obs.filter(o => o.x > -o.w);
@@ -69,7 +69,7 @@ const STAND_TOP = GROUND - 74, STAND_BOT = GROUND - 18;
 function wrap(v, p) { return ((v % p) + p) % p; }
 
 // Fases del día: mañana → mediodía → noche → mañana, según los puntos (cada fase dura PHASE_LEN pts y
-// la transición los últimos FADE). Para ver una sola fase: zorro.html?fase=manana | mediodia | noche
+// la transición los últimos FADE). Para ver una sola fase: robot.html?fase=manana | mediodia | noche
 const PHASE_LEN = 2000, FADE = 40;
 const SUN_LOW = STAND_TOP - 2;
 const PHASES = {
@@ -106,7 +106,7 @@ const nightStars = Array.from({ length: 40 }, ((r) => () => ({ x: r() * W, y: r(
 const towerX = [90, 450];
 
 // Puntos de colores en las gradas: cuántos lugares se ven ocupados.
-// Empieza en mínimas y sube un nivel con cada día completo (al volver a la mañana) hasta todas; para fijarlo: zorro.html?luces=minimas | pocas | intermedias | todas
+// Empieza en mínimas y sube un nivel con cada día completo (al volver a la mañana) hasta todas; para fijarlo: robot.html?luces=minimas | pocas | intermedias | todas
 const CROWD_LEVELS = { minimas: 0.08, pocas: 0.25, intermedias: 0.6, todas: 1 };
 const FORCED_LIGHTS = (location.search.match(/[?&]luces=(minimas|pocas|intermedias|todas)\b/) || [])[1];
 let crowdFrac;

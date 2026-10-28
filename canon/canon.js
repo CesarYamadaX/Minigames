@@ -1,8 +1,8 @@
 const c = document.getElementById('c'), g = c.getContext('2d');
 const W = c.width, H = c.height, CW = 54, BX = 70, R = 10;
-const batImg = new Image(); batImg.src = '../assets/cueva-avioneta.png';
+const batImg = new Image(); batImg.src = '../assets/canon-avioneta.png';
 let bgx = 0;
-let bat, cols, score, best = loadBest('cueva'), over, overAt, started, frame;
+let bat, cols, score, best = loadBest('canon'), over, overAt, started, frame;
 
 function reset() {
   bat = { y: H / 2, v: 0, wing: 0 };
@@ -20,7 +20,7 @@ c.addEventListener('pointerdown', flap);
 function die() {
   if (over) return;
   over = true; overAt = performance.now();
-  if (score > best) { best = score; saveBest('cueva', best); }
+  if (score > best) { best = score; saveBest('canon', best); }
 }
 
 function update() {
