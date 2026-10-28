@@ -15,6 +15,7 @@ c.addEventListener('pointerdown', e => {
 function reset() {
   sub = { y: H / 2, tilt: 0 };
   cols = []; bubbles = []; score = 0; over = false; started = false; frame = 0; spawn = 0;
+  critters = []; nextCritter = 60 + Math.random() * 240;   // el primero, de 1 a 5 s después de llegar a CRITTERS_AT
 }
 
 function die() {
@@ -52,13 +53,14 @@ function update() {
   cols = cols.filter(p => p.x > -CW);
 }
 
-// Animales marinos que cruzan el fondo de vez en cuando, por detrás de las rocas.
+// Animales marinos que cruzan el fondo de vez en cuando, por detrás de las rocas, desde CRITTERS_AT puntos.
+const CRITTERS_AT = 15;
 const CRITTERS = [
   { name: 'pez', v: 1.6, bob: 0.4 }, { name: 'tortuga', v: 0.9, bob: 0.5 }, { name: 'medusa', v: 0.45, bob: 1.6 },
   { name: 'pulpo', v: 0.7, bob: 1.0 }, { name: 'mantarraya', v: 1.1, bob: 0.6 }, { name: 'ballena', v: 0.55, bob: 0.3 },
 ].map(cr => { const i = new Image(); i.src = '../assets/submarino-' + cr.name + '.png'; return { ...cr, img: i }; });
 function updateCritters() {
-  if (--nextCritter <= 0 && critters.length < 2) {
+  if (score >= CRITTERS_AT && --nextCritter <= 0 && critters.length < 2) {
     const kind = CRITTERS[Math.floor(Math.random() * CRITTERS.length)];
     const s = kind.name === 'ballena' ? 0.55 : 0.5;
     critters.push({ kind, s, x: W + 20, y: 50 + Math.random() * (H - 220), ph: Math.random() * 6 });
