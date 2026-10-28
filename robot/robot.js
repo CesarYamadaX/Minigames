@@ -68,23 +68,23 @@ const STAND_TOP = GROUND - 74, STAND_BOT = GROUND - 18;
 
 function wrap(v, p) { return ((v % p) + p) % p; }
 
-// Fases del día: mañana → mediodía → noche → mañana, según los puntos (cada fase dura PHASE_LEN pts y
-// la transición los últimos FADE). Para ver una sola fase: robot.html?fase=manana | mediodia | noche
+// Fases del día: mañana → atardecer → noche → mañana, según los puntos (cada fase dura PHASE_LEN pts y
+// la transición los últimos FADE). Para ver una sola fase: robot.html?fase=manana | atardecer | noche
 const PHASE_LEN = 2000, FADE = 40;
 const SUN_LOW = STAND_TOP - 2;
 const PHASES = {
-  manana: { skyTop: '#6f8fd0', skyBot: '#ffc9a0', pole: '#8a8fa8', head: '#e8e2e0', lamp: '#fff6c2', stand: '#4a4560', roof: '#a397b0',
+  atardecer: { skyTop: '#6f8fd0', skyBot: '#ffc9a0', pole: '#8a8fa8', head: '#e8e2e0', lamp: '#fff6c2', stand: '#4a4560', roof: '#a397b0',
     wall: '#8e8f97', trackTop: '#c0472e', trackBot: '#d8603e', lane: '#fbf3ea', cloud: '#ffe3d6', cloudA: 0.75, dim: 0.12, night: 0, beam: 0.4,
-    sunX: 130, sunY: SUN_LOW, sunR: 22, sunIn: '#fff1c4', sunOut: '#ffb067', sunA: 1 },
-  mediodia: { skyTop: '#5fb6ee', skyBot: '#d6f0ff', pole: '#7d8aa6', head: '#e8edf7', lamp: '#fff6c2', stand: '#3b4660', roof: '#8b97b3',
+    sunX: 470, sunY: SUN_LOW, sunR: 22, sunIn: '#fff1c4', sunOut: '#ffb067', sunA: 1 },
+  manana: { skyTop: '#5fb6ee', skyBot: '#d6f0ff', pole: '#7d8aa6', head: '#e8edf7', lamp: '#fff6c2', stand: '#3b4660', roof: '#8b97b3',
     wall: '#8c919b', trackTop: '#b8402a', trackBot: '#d4593a', lane: '#f2f3f7', cloud: '#ffffff', cloudA: 0.7, dim: 0, night: 0, beam: 0,
     sunX: 250, sunY: 30, sunR: 13, sunIn: '#ffffff', sunOut: '#fff3b0', sunA: 1 },
   noche: { skyTop: '#070b22', skyBot: '#1d2b5a', pole: '#3a4460', head: '#9aa6c4', lamp: '#ffffff', stand: '#1a2034', roof: '#3a4460',
     wall: '#454a55', trackTop: '#5a2420', trackBot: '#6e2c22', lane: '#b9bfd0', cloud: '#c8d0e8', cloudA: 0.15, dim: 0.5, night: 1, beam: 1,
     sunX: 600, sunY: SUN_LOW, sunR: 22, sunIn: '#ffd9a0', sunOut: '#ff8a50', sunA: 0 },
 };
-const ORDER = ['manana', 'mediodia', 'noche'];
-const FORCED = (location.search.match(/[?&]fase=(manana|mediodia|noche)\b/) || [])[1] || (/[?&]noche\b/.test(location.search) ? 'noche' : null);
+const ORDER = ['manana', 'atardecer', 'noche'];
+const FORCED = (location.search.match(/[?&]fase=(manana|atardecer|noche)\b/) || [])[1] || (/[?&]noche\b/.test(location.search) ? 'noche' : null);
 
 function mix(c1, c2, k) {
   const p = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
@@ -129,7 +129,7 @@ function drawStadium(P) {
     g.beginPath(); g.arc(386, 30, 11, 0, Math.PI * 2); g.fill();
     g.restore();
   }
-  // sol con halo (bajo y anaranjado en la mañana, alto y blanco al mediodía)
+  // sol con halo (alto y blanco en la mañana, bajo y anaranjado al atardecer)
   if (P.sunA > 0.01) {
     g.save(); g.globalAlpha = P.sunA;
     const halo = g.createRadialGradient(P.sunX, P.sunY, P.sunR * 0.5, P.sunX, P.sunY, P.sunR * 4);
