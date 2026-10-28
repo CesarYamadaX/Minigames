@@ -45,19 +45,17 @@ function draw() {
   const bg = g.createRadialGradient(W / 2, H * 0.4, 40, W / 2, H * 0.4, H * 0.85);
   bg.addColorStop(0, '#1d1e28'); bg.addColorStop(1, '#09090e');
   g.fillStyle = bg; g.fillRect(0, 0, W, H);
-  // cuadrícula tenue y línea de media cancha
+  // cuadrícula tenue
   g.strokeStyle = 'rgba(255,255,255,0.045)'; g.lineWidth = 1;
   for (let x = WALL + 30; x < W - WALL; x += 30) { g.beginPath(); g.moveTo(x, WALL); g.lineTo(x, H); g.stroke(); }
   for (let y = WALL + 30; y < H; y += 30) { g.beginPath(); g.moveTo(WALL, y); g.lineTo(W - WALL, y); g.stroke(); }
-  g.strokeStyle = 'rgba(229,37,42,0.28)'; g.lineWidth = 2;
-  g.setLineDash([10, 10]); g.beginPath(); g.moveTo(WALL, H / 2); g.lineTo(W - WALL, H / 2); g.stroke(); g.setLineDash([]);
   // círculo central: el símbolo de HONOR, del mismo tamaño que el círculo de antes (120px)
   if (logoImg.complete) {
     const ld = 120, lw = ld * logoImg.width / logoImg.height;
     g.save(); g.globalAlpha = 0.3; g.drawImage(logoImg, W / 2 - lw / 2, H / 2 - ld / 2, lw, ld); g.restore();
   }
-  // paredes rojas con brillo
-  g.save(); g.shadowColor = '#e5252a'; g.shadowBlur = 14; g.fillStyle = '#e5252a';
+  // paredes blancas con brillo suave
+  g.save(); g.shadowColor = 'rgba(255,255,255,0.6)'; g.shadowBlur = 12; g.fillStyle = '#f2f3f7';
   g.fillRect(0, 0, W, WALL); g.fillRect(0, 0, WALL, H); g.fillRect(W - WALL, 0, WALL, H);
   g.restore();
   g.fillStyle = 'rgba(255,255,255,0.35)';
