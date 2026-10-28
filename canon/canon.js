@@ -46,18 +46,18 @@ function update() {
   if (bat.y - R < 0 || bat.y + R > H) die();
 }
 
-// Fases del día según los puntos: mañana hasta MIDDAY_AT, mediodía hasta NIGHT_AT y luego noche para
-// siempre; cada cambio dura FADE puntos. Para ver una sola fase: canon.html?fase=manana | mediodia | noche
+// Fases del día según los puntos: mañana hasta DUSK_AT, atardecer hasta NIGHT_AT y luego noche para
+// siempre; cada cambio dura FADE puntos. Para ver una sola fase: canon.html?fase=manana | atardecer | noche
 const PHASES = {
-  manana: { skyTop: '#6f8fd0', skyMid: '#f2a7a0', skyBot: '#ffd9a8', mesaFar: '#c47a86', mesaNear: '#9a5470',
-    rockLight: '#d0703f', rock: '#a6482f', rockShadow: '#62292a', sunX: W * 0.25, sunY: H * 0.72, sunR: 24, sunIn: '#fff1c4', sunOut: '#ffb067', sunA: 1, cloudA: 0.95, night: 0 },
-  mediodia: { skyTop: '#3f9de6', skyMid: '#7cc4f2', skyBot: '#cfeeff', mesaFar: '#d7956c', mesaNear: '#b56c4a',
+  atardecer: { skyTop: '#6f8fd0', skyMid: '#f2a7a0', skyBot: '#ffd9a8', mesaFar: '#c47a86', mesaNear: '#9a5470',
+    rockLight: '#d0703f', rock: '#a6482f', rockShadow: '#62292a', sunX: W * 0.72, sunY: H * 0.72, sunR: 24, sunIn: '#fff1c4', sunOut: '#ffb067', sunA: 1, cloudA: 0.95, night: 0 },
+  manana: { skyTop: '#3f9de6', skyMid: '#7cc4f2', skyBot: '#cfeeff', mesaFar: '#d7956c', mesaNear: '#b56c4a',
     rockLight: '#d47a48', rock: '#ad5434', rockShadow: '#6b2e25', sunX: W * 0.72, sunY: 80, sunR: 16, sunIn: '#ffffff', sunOut: '#fff3b0', sunA: 1, cloudA: 1, night: 0 },
   noche: { skyTop: '#050819', skyMid: '#121b42', skyBot: '#26315f', mesaFar: '#2a2f55', mesaNear: '#1c1f3d',
     rockLight: '#5e3f45', rock: '#46303a', rockShadow: '#24182a', sunX: W * 1.1, sunY: H * 0.72, sunR: 24, sunIn: '#ffd9a0', sunOut: '#ff8a50', sunA: 0, cloudA: 0.28, night: 1 },
 };
-const MIDDAY_AT = 20, NIGHT_AT = 70, FADE = 2;
-const FORCED = (location.search.match(/[?&]fase=(manana|mediodia|noche)\b/) || [])[1];
+const DUSK_AT = 20, NIGHT_AT = 70, FADE = 2;
+const FORCED = (location.search.match(/[?&]fase=(manana|atardecer|noche)\b/) || [])[1];
 function mix(c1, c2, k) {
   const p = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
   const A = p(c1), B = p(c2);
@@ -71,10 +71,10 @@ function blend(A, B, k) {
 function currentPhase() {
   if (FORCED) return PHASES[FORCED];
   const ease = at => (v => v * v * (3 - 2 * v))(Math.max(0, Math.min(1, (skyP - at) / FADE)));
-  return skyP >= NIGHT_AT ? blend(PHASES.mediodia, PHASES.noche, ease(NIGHT_AT)) : blend(PHASES.manana, PHASES.mediodia, ease(MIDDAY_AT));
+  return skyP >= NIGHT_AT ? blend(PHASES.atardecer, PHASES.noche, ease(NIGHT_AT)) : blend(PHASES.manana, PHASES.atardecer, ease(DUSK_AT));
 }
 
-// Nubes que pasan POR DELANTE de todo: no hay en la mañana; empiezan al mediodía y, conforme avanzas
+// Nubes que pasan POR DELANTE de todo: no hay en la mañana; empiezan al atardecer y, conforme avanzas
 // en la noche, salen más seguido y más grandes hasta tapar buena parte de la pantalla.
 const cloudImgs = [1, 2, 3, 4].map(n => {
   const i = new Image();
@@ -88,9 +88,9 @@ const cloudImgs = [1, 2, 3, 4].map(n => {
   return i;
 });
 function fogDensity() {
-  if (FORCED) return { manana: 0, mediodia: 0.4, noche: 0.9 }[FORCED];
-  if (skyP < MIDDAY_AT) return 0;                                                   // mañana: cielo despejado
-  if (skyP < NIGHT_AT) return 0.15 + (skyP - MIDDAY_AT) / (NIGHT_AT - MIDDAY_AT) * 0.45;   // mediodía: de 0.15 a 0.6
+  if (FORCED) return { manana: 0, atardecer: 0.4, noche: 0.9 }[FORCED];
+  if (skyP < DUSK_AT) return 0;                                                     // mañana: cielo despejado
+  if (skyP < NIGHT_AT) return 0.15 + (skyP - DUSK_AT) / (NIGHT_AT - DUSK_AT) * 0.45;         // atardecer: de 0.15 a 0.6
   return Math.min(1, 0.6 + (skyP - NIGHT_AT) / 50 * 0.4);                           // noche: de 0.6 a 1 en 50 pts
 }
 function updateFog() {
