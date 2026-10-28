@@ -106,13 +106,13 @@ const nightStars = Array.from({ length: 40 }, ((r) => () => ({ x: r() * W, y: r(
 const towerX = [90, 450];
 
 // Puntos de colores en las gradas: cuántos lugares se ven ocupados.
-// Empieza en mínimas y sube un nivel con cada fase hasta todas; para fijarlo: zorro.html?luces=minimas | pocas | intermedias | todas
+// Empieza en mínimas y sube un nivel con cada día completo (al volver a la mañana) hasta todas; para fijarlo: zorro.html?luces=minimas | pocas | intermedias | todas
 const CROWD_LEVELS = { minimas: 0.08, pocas: 0.25, intermedias: 0.6, todas: 1 };
 const FORCED_LIGHTS = (location.search.match(/[?&]luces=(minimas|pocas|intermedias|todas)\b/) || [])[1];
 let crowdFrac;
 function currentCrowd() {
   const names = Object.keys(CROWD_LEVELS);
-  return CROWD_LEVELS[FORCED_LIGHTS || names[Math.min(names.length - 1, Math.floor(score / PHASE_LEN))]];
+  return CROWD_LEVELS[FORCED_LIGHTS || names[Math.min(names.length - 1, Math.floor(score / (PHASE_LEN * 3)))]];
 }
 
 function drawStadium(P) {
